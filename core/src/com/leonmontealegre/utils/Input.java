@@ -1,6 +1,8 @@
 package com.leonmontealegre.utils;
 
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
@@ -49,6 +51,8 @@ public final class Input implements InputProcessor {
 	
 	/** Instance of Input to attach as the LibGDX listener. */
 	public static final Input instance = new Input();
+
+	public static final GestureInput gestureInstance = new GestureInput();
 	
 	/** Array of all the keys that have been pressed for the first time. */
 	private static final boolean[] firstPressedKeys = new boolean[255];
@@ -66,6 +70,10 @@ public final class Input implements InputProcessor {
 	private static ArrayList<Integer> keysToChange = new ArrayList<Integer>();
 	private static int scrollAmount = 0;
 	private static Key lastKeyPressed = null;
+
+	private static float zoom = 0.0f;
+	private static Vector2 pan = new Vector2();
+	private static Vector2[] pinches = {new Vector2(), new Vector2(), new Vector2(), new Vector2()};
 	
 	private Input() {}
 	
@@ -182,6 +190,21 @@ public final class Input implements InputProcessor {
 		}
 		return false;
 	}
+
+	public static float getZoom() {
+		return zoom;
+	}
+
+	public static Vector2 getPan() {
+		return pan;
+	}
+
+	public static Vector2[] getPinches() {
+		Vector2[] ps = new Vector2[pinches.length];
+		for (int i = 0; i < pinches.length; i++)
+			ps[i] = new Vector2(pinches[i]);
+		return ps;
+	}
 	
 	/**
 	 * @return	{@code true} if the mouse was scrolled up,
@@ -220,6 +243,11 @@ public final class Input implements InputProcessor {
 			if (touches.get(i).isReleased())
 				touches.remove(i--);
 		}
+
+		zoom = 0;
+		pan = new Vector2();
+		for (int i = 0; i < pinches.length; i++)
+			pinches[i] = new Vector2();
 	}
 	
 	/** NOT FOR PUBLIC USE */
@@ -300,5 +328,62 @@ public final class Input implements InputProcessor {
 		scrollAmount = amount;
 		return false;
 	}
-	
+
+	static class GestureInput implements GestureDetector.GestureListener {
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean touchDown(float x, float y, int pointer, int button) {
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean tap(float x, float y, int count, int button) {
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean longPress(float x, float y) {
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean fling(float velocityX, float velocityY, int button) {
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean pan(float x, float y, float deltaX, float deltaY) {
+			pan = new Vector2(deltaX, deltaY);
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean panStop(float x, float y, int pointer, int button) {
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean zoom(float initialDistance, float distance) {
+			zoom = initialDistance / distance;
+			return false;
+		}
+
+		/** NOT FOR PUBLIC USE */
+		@Override
+		public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+			pinches[0] = initialPointer1;
+			pinches[1] = initialPointer2;
+			pinches[2] = pointer1;
+			pinches[3] = pointer2;
+			return false;
+		}
+	}
+
+
 }

@@ -11,11 +11,11 @@ import com.leonmontealegre.utils.Touch;
 
 public class Planet {
 
-    private Texture tex = new Texture("planet.png");
+    private static Texture tex1 = new Texture("planet01.png"), tex2 = new Texture("planet02.png");
 
     public Sprite sprite;
 
-    private World world;
+    private Level level;
 
     public float radius, force;
 
@@ -23,34 +23,40 @@ public class Planet {
 
     private Circle circle;
 
-    public Planet(World world, float x, float y, float radius, float force) {
-        this.world = world;
-        this.radius = radius;
-        this.force = force;
+    private boolean isOn = false;
 
+    public Planet(Level level, Vector2 position, float radius, float force) {
+        this.level = level;
+        this.radius = radius;
+        this.force = force == 0 ? radius*radius / 2500f * 1e6f : force;
+
+        Texture tex = (MathUtils.randomBoolean() ? tex1 : tex2);
         sprite = new Sprite(tex);
         sprite.setScale(2*radius/tex.getWidth(), 2*radius/tex.getHeight());
-        sprite.setPosition(x, y);
+        sprite.setPosition(position.x, position.y);
         sprite.rotate(360 * MathUtils.random());
 
-        position = new Vector2(sprite.getX() + sprite.getWidth()/2, sprite.getY() + sprite.getHeight()/2);
+        this.position = new Vector2(sprite.getX() + sprite.getWidth()/2, sprite.getY() + sprite.getHeight()/2);
 
         circle = new Circle(position.x, position.y, radius);
     }
 
     public void update() {
-        Player player = world.player;
+        Player player = level.player;
 
         for (Touch t : Input.touches) {
-            Vector2 pos = t.position;
-            if (circle.contains(pos)) { // if touch is in planet
-                Vector2 dPos = new Vector2(position).sub(player.position);
-
-                float gravForce = force / dPos.len2();
-
-                player.addForce(new Vector2(dPos).nor().scl(gravForce));
+            if (t.isFirstPressed() && circle.contains(level.unproject(t.position))) {
+                isOn = !isOn;
                 break;
             }
+        }
+
+        if (isOn) {
+            Vector2 dPos = new Vector2(position).sub(player.position);
+
+            float gravForce = force / dPos.len2();
+
+            player.addForce(new Vector2(dPos).nor().scl(gravForce));
         }
 
     }

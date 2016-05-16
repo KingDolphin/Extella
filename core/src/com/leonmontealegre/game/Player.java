@@ -27,7 +27,7 @@ public class Player {
 
     public Player(float startX, float startY) {
         sprite = new Sprite(tex);
-        sprite.scale(3);
+        sprite.scale(1);
         sprite.translate(startX, startY);
 
         position = new Vector2();
@@ -38,7 +38,7 @@ public class Player {
         float width = tex.getWidth(), height = tex.getHeight();
         polygon = new Polygon(new float[]{0,0,width,0,width,height,0,height});
         polygon.setOrigin(width/2, height/2);
-        polygon.scale(3);
+        polygon.scale(1);
     }
 
     public void resolveCollisionWith(Planet planet) {
@@ -65,7 +65,7 @@ public class Player {
         //a = F/m
         Vector2 acceleration = new Vector2(force).scl(1f / mass);
 
-        float time = (float)World.TIME_SCALE / Constants.TARGET_UPS;
+        float time = (float) Level.TIME_SCALE / Constants.TARGET_UPS;
 
         //vf = v0 + at
         velocity.add(acceleration.scl(time));
