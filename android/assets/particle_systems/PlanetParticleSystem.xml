@@ -1,0 +1,35 @@
+<particle_system id="1" name="Planet Particle System">
+
+	<!-- Types of Particles -->
+	<particles type="array">
+		<particle> Planet Particle </particle>
+	</particles>
+
+	<vector name="min_pos"> 0, 0 </vector>
+	<vector name="max_pos"> 0, 0 </vector>
+
+	<vector name="min_speed">  0, 0 </vector>
+	<vector name="max_speed">  0, 0 </vector>
+
+	<vector name="min_size"> 15, 15 </vector>
+	<vector name="max_size"> 15, 15 </vector>
+
+	<vector name="speed_per_second"> 0, 0 </vector>
+	<vector name="size_per_second"> 50, 50 </vector>
+
+	<float name="duration"> 5.0 </float>
+	<float name="min_life"> 1.5 </float>
+	<float name="max_life"> 1.5 </float>
+
+	<float name="min_rotation"> 0 </float>
+	<float name="max_rotation"> 0 </float>
+
+	<float name="rotation_per_second"> 0 </float>
+
+	<boolean name="loop"> true </boolean>
+	<integer name="max_particles"> 15 </integer>
+
+	<float name="particles_per_second"> 2 </float>
+	<int name="particles_on_start"> 1 </int>
+
+</particle_system>

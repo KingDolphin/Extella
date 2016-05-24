@@ -1,0 +1,8 @@
+<particle id="0" name="Particle 1">
+
+    <textures type="array">
+        <!--<color> 0, 0, 0 </color>-->
+        <file> spaceship.png </file>
+    </textures>
+
+</particle>

@@ -25,10 +25,10 @@ public class Player {
 
     public boolean shouldDestroy = false;
 
-    public Player(float startX, float startY) {
+    public Player(Vector2 startPosition) {
         sprite = new Sprite(tex);
         sprite.scale(1);
-        sprite.translate(startX, startY);
+        sprite.translate(startPosition.x, startPosition.y);
 
         position = new Vector2();
         velocity = new Vector2();

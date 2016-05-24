@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -53,6 +54,12 @@ public class Game extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+		// Load all particles
+		FileHandle particles = Gdx.files.internal("particle_systems/particles");
+		for (FileHandle particle : particles.list())
+			Particle.load(particle.path());
+//		Particle.load("particle_systems/particles/Particle1.xml");
+
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		stage = new Stage(new ScreenViewport());
 
@@ -70,7 +77,7 @@ public class Game extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
 		sr = new ShapeRenderer();
-		level = new Level(camera);
+		level = new Level(camera, "levels/LevelTest.xml");
 
 		table = new Table();
 		table.pad(15f);
@@ -82,7 +89,7 @@ public class Game extends ApplicationAdapter {
 		restartButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				level = new Level(camera);
+				level = new Level(camera, "levels/LevelTest.xml");
 			}
 		});
 		restartButton.getLabel().setFontScale(4f);
@@ -115,7 +122,7 @@ public class Game extends ApplicationAdapter {
 			camera.zoom = initialScale*Input.getZoom();
 
 		if (!Input.getPan().isZero())
-			camera.translate(-Input.getPan().x, Input.getPan().y);
+			camera.translate(-camera.zoom*Input.getPan().x, camera.zoom*Input.getPan().y);
 
 	}
 
@@ -157,7 +164,7 @@ public class Game extends ApplicationAdapter {
 
 		if (System.currentTimeMillis() - timer > 1000) {
 			timer += 1000;
-//			System.out.println(Constants.TITLE + " | " + updates + " ups, " + frames + " fps");
+			System.out.println(Constants.TITLE + " | " + updates + " ups, " + frames + " fps");
 			updates = frames = 0;
 		}
 	}

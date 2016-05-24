@@ -34,11 +34,12 @@ public class Level {
         planets = new ArrayList<Planet>();
 
         load(file);
-//        player = new Player(50, 50);
 
-//        planets.add(new Planet(this, 750, 300, 75));
-//        planets.add(new Planet(this, 300, 750, 50));
-//        planets.add(new Planet(this, 900, 550, 60));
+//        player = new Player(new Vector2(50, 50));
+//
+//        planets.add(new Planet(this, new Vector2(750, 300), 75, 0));
+//        planets.add(new Planet(this, new Vector2(300, 750), 50, 0));
+//        planets.add(new Planet(this, new Vector2(900, 550), 60, 0));
 
         Explosion.load();
     }
@@ -49,12 +50,13 @@ public class Level {
     }
 
     public void update() {
-        if (player != null) {
-            for (Planet planet : planets) {
-                planet.update();
+        for (Planet planet : planets) {
+            planet.update();
 
+            if (player != null)
                 player.resolveCollisionWith(planet);
-            }
+        }
+        if (player != null) {
 
             player.update();
 
@@ -109,17 +111,16 @@ public class Level {
         try {
             XmlReader reader = new XmlReader();
             XmlReader.Element root = reader.parse(Gdx.files.internal(file));
-            Array<XmlReader.Element> levels = root.getChildrenByName("level");
-            for (XmlReader.Element child : levels) {
-                String name = child.get("name");
 
-                Array<XmlReader.Element> planets = child.getChildrenByName("planet");
-                for (XmlReader.Element planet : planets) {
-                    Vector2 position = new Vector2(planet.getInt("x"), planet.getInt("y"));
-                    int radius = planet.getInt("radius");
-                    float force = planet.getFloat("force", 0.0f);
-                    this.planets.add(new Planet(this, position, radius, force));
-                }
+            XmlReader.Element player = root.getChildByName("player");
+            this.player = new Player(new Vector2(player.getInt("x"), player.getInt("y")));
+
+            Array<XmlReader.Element> planets = root.getChildrenByName("planet");
+            for (XmlReader.Element planet : planets) {
+                Vector2 position = new Vector2(planet.getInt("x"), planet.getInt("y"));
+                int radius = planet.getInt("radius");
+                float force = planet.getFloat("force", 0.0f);
+                this.planets.add(new Planet(this, position, radius, force));
             }
         } catch (IOException e) {
             e.printStackTrace();

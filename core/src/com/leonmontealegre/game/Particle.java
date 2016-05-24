@@ -1,32 +1,70 @@
 package com.leonmontealegre.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.XmlReader;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Particle {
-    private Vector2 position;
-    private Vector2 velocity;
-    private Texture texture;
 
-    public Particle(Vector2 position, int xPosRange, int minSpeed, int speedRange, Texture texture, Vector2 direction) {
-        this.position = position;
+    public static final Map<String, Texture[]> PARTICLE_MAP = new HashMap<String, Texture[]>();
 
-        this.velocity = (direction.scl(minSpeed + MathUtils.random() * speedRange));
-        this.texture = texture;
+    public String name;
+
+    public Texture texture;
+
+    public Vector2 position;
+    public Vector2 velocity;
+    public Vector2 size;
+    public float startTime;
+    public float life;
+    public float rotation;
+
+    public Particle() {}
+
+    public Particle(String name, Vector2 position, Vector2 velocity, Vector2 size, float startTime, float life, float rotation) {
+        this.reset(name, position, velocity, size, startTime, life, rotation);
     }
 
-    public void updatePhysics() {
-        position.y += velocity.y;
-        position.x += velocity.x;
+    public void update() {
+        this.position.add(velocity);
     }
 
-    public void doDraw(SpriteBatch batch) {
-        batch.draw(texture, position.x, position.y);
+    public void reset(String name, Vector2 position, Vector2 velocity, Vector2 size, float startTime, float life, float rotation) {
+        this.name = name;
+        this.texture = PARTICLE_MAP.get(name)[(int)(MathUtils.random()*PARTICLE_MAP.get(name).length)];
+        this.position = new Vector2(position);
+
+        this.velocity = velocity;
+        this.size = size;
+        this.startTime = startTime;
+        this.life = life;
+        this.rotation = rotation;
     }
 
-    public boolean OutOfSight() {
-        return position.y <= -1 * texture.getHeight();
+    public static void load(String fileName) {
+        try {
+            XmlReader reader = new XmlReader();
+            XmlReader.Element root = reader.parse(Gdx.files.internal(fileName));
+
+            String name = root.get("name");
+
+            XmlReader.Element textures = root.getChildByName("textures");
+            Array<XmlReader.Element> files = textures.getChildrenByName("file");
+            Texture[] texs = new Texture[files.size];
+
+            for (int i = 0; i < files.size; i++)
+                texs[i] = new Texture(files.get(i).getText().trim());
+
+            PARTICLE_MAP.put(name, texs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

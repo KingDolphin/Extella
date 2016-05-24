@@ -25,6 +25,8 @@ public class Planet {
 
     private boolean isOn = false;
 
+    private ParticleSystem system;
+
     public Planet(Level level, Vector2 position, float radius, float force) {
         this.level = level;
         this.radius = radius;
@@ -36,9 +38,16 @@ public class Planet {
         sprite.setPosition(position.x, position.y);
         sprite.rotate(360 * MathUtils.random());
 
-        this.position = new Vector2(sprite.getX() + sprite.getWidth()/2, sprite.getY() + sprite.getHeight()/2);
+        system = new ParticleSystem("particle_systems/PlanetParticleSystem.xml");
 
-        circle = new Circle(position.x, position.y, radius);
+        circle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, radius);
+
+        this.position = new Vector2(circle.x, circle.y);
+
+        system.position = new Vector2((sprite.getX()+this.position.x)/2, (sprite.getY()+this.position.y)/2);
+        system.setMinSize(new Vector2(2*radius, 2*radius));
+        system.setMaxSize(new Vector2(2*radius, 2*radius));
+        system.pause();
     }
 
     public void update() {
@@ -47,18 +56,22 @@ public class Planet {
         for (Touch t : Input.touches) {
             if (t.isFirstPressed() && circle.contains(level.unproject(t.position))) {
                 isOn = !isOn;
+                if (isOn)
+                    system.resume();
+                else
+                    system.pause();
                 break;
             }
         }
 
-        if (isOn) {
+        if (isOn && player != null) {
             Vector2 dPos = new Vector2(position).sub(player.position);
 
             float gravForce = force / dPos.len2();
 
             player.addForce(new Vector2(dPos).nor().scl(gravForce));
         }
-
+        system.update();
     }
 
     public Circle getCircle() {
@@ -67,6 +80,8 @@ public class Planet {
 
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
+
+        system.render(batch);
     }
 
 }
