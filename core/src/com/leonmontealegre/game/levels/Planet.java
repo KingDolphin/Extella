@@ -1,4 +1,4 @@
-package com.leonmontealegre.game;
+package com.leonmontealegre.game.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.ParticleSystem;
 import com.leonmontealegre.utils.Input;
 import com.leonmontealegre.utils.Touch;
 
@@ -22,6 +23,7 @@ public class Planet {
     public Vector2 position;
 
     private Circle circle;
+    private Circle tapCircle;
 
     private boolean isOn = false;
 
@@ -41,6 +43,7 @@ public class Planet {
         system = new ParticleSystem("particle_systems/PlanetParticleSystem.xml");
 
         circle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, radius);
+        tapCircle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, 4f*radius/3f);
 
         this.position = new Vector2(circle.x, circle.y);
 
@@ -54,12 +57,14 @@ public class Planet {
         Player player = level.player;
 
         for (Touch t : Input.touches) {
-            if (t.isFirstPressed() && circle.contains(level.unproject(t.position))) {
+            if (t.isFirstPressed() && tapCircle.contains(level.unproject(t.position))) {
                 isOn = !isOn;
-                if (isOn)
+                if (isOn) {
                     system.resume();
-                else
+                } else {
                     system.pause();
+                    system.clear();
+                }
                 break;
             }
         }
@@ -76,6 +81,10 @@ public class Planet {
 
     public Circle getCircle() {
         return this.circle;
+    }
+
+    public Circle getTapCircle() {
+        return this.tapCircle;
     }
 
     public void render(SpriteBatch batch) {

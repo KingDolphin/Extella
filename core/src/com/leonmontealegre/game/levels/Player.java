@@ -1,4 +1,4 @@
-package com.leonmontealegre.game;
+package com.leonmontealegre.game.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.*;
 
 public class Player {
 
@@ -65,7 +66,7 @@ public class Player {
         //a = F/m
         Vector2 acceleration = new Vector2(force).scl(1f / mass);
 
-        float time = (float) Level.TIME_SCALE / Constants.TARGET_UPS;
+        float time = (float)Level.TIME_SCALE / Options.TARGET_UPS;
 
         //vf = v0 + at
         velocity.add(acceleration.scl(time));

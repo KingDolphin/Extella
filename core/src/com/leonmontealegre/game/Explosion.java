@@ -20,7 +20,7 @@ public class Explosion {
     }
 
     public void update() {
-        time += 1f / Constants.TARGET_UPS;
+        time += 1f / Options.TARGET_UPS;
     }
 
     public void render(SpriteBatch batch) {

@@ -64,15 +64,20 @@ public class ParticleSystem {
         isPaused = false;
     }
 
+    public void clear() {
+        particles.clear();
+        deadParticles.clear();
+    }
+
     public void update() {
         if (!loop && timer > duration)
             return;
 
         for (int i = 0; i < particles.size(); i++ ) {
             Particle particle = particles.get(i);
-            particle.velocity.add(speedPerSecond.cpy().scl(1f / Constants.TARGET_UPS));
-            particle.size.add(sizePerSecond.cpy().scl(1f / Constants.TARGET_UPS));
-            particle.rotation += rotationPerSecond / Constants.TARGET_UPS;
+            particle.velocity.add(speedPerSecond.cpy().scl(1f / Options.TARGET_UPS));
+            particle.size.add(sizePerSecond.cpy().scl(1f / Options.TARGET_UPS));
+            particle.rotation += rotationPerSecond / Options.TARGET_UPS;
             particle.update();
 
             if (timer >= particle.startTime+particle.life) {
@@ -88,9 +93,9 @@ public class ParticleSystem {
             }
         }
 
-        timer += 1f / Constants.TARGET_UPS;
+        timer += 1f / Options.TARGET_UPS;
         if (!isPaused)
-            spawnTimer += 1f / Constants.TARGET_UPS;
+            spawnTimer += 1f / Options.TARGET_UPS;
     }
 
     public void render(SpriteBatch batch) {

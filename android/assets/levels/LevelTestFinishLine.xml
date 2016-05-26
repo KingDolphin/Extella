@@ -1,0 +1,25 @@
+<level id="1" name="Test Level" type="FinishLine">
+	<player
+		x="50"
+		y="50"/>
+	<planet
+		x="750"
+		y="300"
+		radius="75"/>
+	<planet
+		x="300"
+		y="750"
+		radius="50"/>
+	<planet
+		x="900"
+		y="550"
+		radius="60"/>
+	<planet
+		x="1700"
+		y="450"
+		radius="180"/>
+	<finish
+		x="2000"
+		y="500"
+		radius="60"/>
+</level>
