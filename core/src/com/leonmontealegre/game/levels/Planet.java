@@ -41,13 +41,16 @@ public class Planet {
         sprite.rotate(360 * MathUtils.random());
 
         system = new ParticleSystem("particle_systems/PlanetParticleSystem.xml");
+        system.setSizePerSecond(new Vector2(radius / 75 * system.getSizePerSecond().x, radius / 75 * system.getSizePerSecond().y));
 
         circle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, radius);
-        tapCircle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, 4f*radius/3f);
+
+        float extraSize = 1200f / ((radius + 10) * (radius + 10));
+        tapCircle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, radius + radius * extraSize);
 
         this.position = new Vector2(circle.x, circle.y);
 
-        system.position = new Vector2((sprite.getX()+this.position.x)/2, (sprite.getY()+this.position.y)/2);
+        system.position = new Vector2(this.position.x, this.position.y);
         system.setMinSize(new Vector2(2*radius, 2*radius));
         system.setMaxSize(new Vector2(2*radius, 2*radius));
         system.pause();
@@ -57,7 +60,7 @@ public class Planet {
         Player player = level.player;
 
         for (Touch t : Input.touches) {
-            if (t.isFirstPressed() && tapCircle.contains(level.unproject(t.position))) {
+            if (t.isReleased() && tapCircle.contains(level.unproject(t.position))) {
                 isOn = !isOn;
                 if (isOn) {
                     system.resume();

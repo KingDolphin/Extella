@@ -104,7 +104,7 @@ public class ParticleSystem {
 
             Sprite sprite = new Sprite(particle.texture);
             sprite.setScale(particle.size.x / sprite.getWidth(), particle.size.y / sprite.getHeight());
-            sprite.translate(particle.position.x, particle.position.y);
+            sprite.translate(particle.position.x - sprite.getWidth()/2, particle.position.y - sprite.getHeight()/2);
             sprite.rotate(particle.rotation);
 
             sprite.draw(batch);

@@ -28,6 +28,7 @@ public class Level {
     public Player player;
 
     public ArrayList<Planet> planets;
+    public ArrayList<Debris> debris;
 
     protected Explosion explosion;
 
@@ -38,12 +39,14 @@ public class Level {
     public boolean hasWon = false;
 
     protected Texture helpText;
-    protected boolean displayHelp = true;
+    protected boolean displayHelp = false;
+    protected boolean paused = false;
 
     public Level(Camera camera, String file) {
         this.camera = camera;
         helpText = new Texture("helpText.png");
         planets = new ArrayList<Planet>();
+        debris = new ArrayList<Debris>();
 
         load(file);
 
@@ -51,10 +54,15 @@ public class Level {
     }
 
     public void restart() {
+        paused = false;
         player = new Player(startPos);
         for (int i = 0; i < planets.size(); i++) {
             Planet p = planets.get(i);
             planets.set(i, new Planet(this, new Vector2(p.sprite.getX(), p.sprite.getY()), p.radius, p.force));
+        }
+        for (int i = 0; i < debris.size(); i++) {
+            Debris d = debris.get(i);
+            debris.set(i, new Debris(this, new Vector2(d.sprite.getX(), d.sprite.getY()), d.radius));
         }
 
         explosion = null;
@@ -66,34 +74,39 @@ public class Level {
     }
 
     public void update() {
-        for (Planet planet : planets) {
-            planet.update();
+        if (!paused) {
+            for (Planet planet : planets) {
+                planet.update();
 
-            if (player != null)
-                player.resolveCollisionWith(planet);
-        }
-        if (player != null) {
-
-            player.update();
-
-            if (player.shouldDestroy) {
-                float width = player.sprite.getScaleX()*player.sprite.getWidth();
-                float height = player.sprite.getScaleY()*player.sprite.getHeight();
-                float size = Math.max(width,height);
-                explosion = new Explosion(new Vector2(player.position).sub(size, size),
-                                          new Vector2(2*size, 2*size));
-                player = null;
+                if (player != null)
+                    player.resolveCollisionWith(planet);
             }
-        }
+            for (Debris d : debris) {
+                d.update();
+            }
 
-        if (displayHelp) {
-            for (Touch t : Input.touches)
-                if (t.isFirstPressed())
-                    displayHelp = false;
-        }
+            if (player != null) {
+                player.update();
 
-        if (explosion != null)
-            explosion.update();
+                if (player.shouldDestroy) {
+                    float width = player.sprite.getScaleX() * player.sprite.getWidth();
+                    float height = player.sprite.getScaleY() * player.sprite.getHeight();
+                    float size = Math.max(width, height);
+                    explosion = new Explosion(new Vector2(player.position).sub(size, size),
+                            new Vector2(2 * size, 2 * size));
+                    player = null;
+                }
+            }
+
+            if (displayHelp) {
+                for (Touch t : Input.touches)
+                    if (t.isFirstPressed())
+                        displayHelp = false;
+            }
+
+            if (explosion != null)
+                explosion.update();
+        }
     }
 
     public void win() {
@@ -113,19 +126,41 @@ public class Level {
     }
 
     public void render(SpriteBatch batch) {
-        batch.begin();
+        if (!batch.isDrawing())
+            batch.begin();
 
         if (player != null)
-         player.render(batch);
+            player.render(batch);
 
         for (Planet planet : planets)
             planet.render(batch);
+
+        for (Debris d : debris)
+            d.render(batch);
 
         if (explosion != null)
             explosion.render(batch);
 
 
+        if (displayHelp) {
+            float w = Gdx.graphics.getWidth()/2;
+            float h = w * helpText.getHeight() / helpText.getWidth();
+            batch.draw(helpText, 0, Gdx.graphics.getHeight()-h-15, w, h);
+        }
+
         batch.end();
+    }
+
+    public void pause() {
+        this.paused = true;
+    }
+
+    public void resume() {
+        this.paused = false;
+    }
+
+    public boolean isPaused() {
+        return this.paused;
     }
 
     public void debug(ShapeRenderer sr) {
@@ -134,6 +169,11 @@ public class Level {
             sr.circle(planet.getTapCircle().x, planet.getTapCircle().y, planet.getTapCircle().radius);
             sr.setColor(Color.GREEN);
             sr.circle(planet.getCircle().x, planet.getCircle().y, planet.getCircle().radius);
+        }
+
+        for (Debris d : debris) {
+            sr.setColor(Color.GREEN);
+            sr.circle(d.getCircle().x, d.getCircle().y, d.getCircle().radius);
         }
 
         if (player != null)
@@ -145,6 +185,8 @@ public class Level {
             XmlReader reader = new XmlReader();
             XmlReader.Element root = reader.parse(Gdx.files.internal(file));
 
+            displayHelp = root.getBoolean("displayTutorial", false);
+
             XmlReader.Element player = root.getChildByName("player");
             this.player = new Player(new Vector2(player.getInt("x"), player.getInt("y")));
             this.startPos = new Vector2(this.player.position);
@@ -155,6 +197,13 @@ public class Level {
                 int radius = planet.getInt("radius");
                 float force = planet.getFloat("force", 0.0f);
                 this.planets.add(new Planet(this, position, radius, force));
+            }
+
+            Array<XmlReader.Element> debris = root.getChildrenByName("debris");
+            for (XmlReader.Element d : debris) {
+                Vector2 position = new Vector2(d.getInt("x"), d.getInt("y"));
+                int radius = d.getInt("radius");
+                this.debris.add(new Debris(this, position, radius));
             }
         } catch (IOException e) {
             e.printStackTrace();

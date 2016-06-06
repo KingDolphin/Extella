@@ -1,0 +1,37 @@
+<level name="Level6" type="FinishLine">
+   <player
+      x="30"
+      y="0"/>
+   <planet
+      x="-200"
+      y="250"
+      radius="50" />
+   <planet
+      x="200"
+      y="250"
+      radius="50" />
+   <planet
+      x="400"
+      y="400"
+      radius="50" />
+   <planet
+      x="-400"
+      y="400"
+      radius="50" />
+   <planet
+      x="-250"
+      y="800"
+      radius="50" />
+   <planet
+      x="250"
+      y="800"
+      radius="50" />
+   <planet
+      x="0"
+      y="210"
+      radius="50" />
+   <finish
+      x="30"
+      y="700"
+      radius="50"/>
+</level>

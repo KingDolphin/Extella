@@ -1,0 +1,17 @@
+<level name="Level 3" type="FinishLine">
+   <player
+      x="0"
+      y="0"/>
+   <planet
+      x="550"
+      y="50"
+      radius="80" />
+   <planet
+      x="-80"
+      y="500"
+      radius="100" />
+   <finish
+      x="350"
+      y="500"
+      radius="50"/>
+</level>

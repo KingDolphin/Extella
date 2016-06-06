@@ -1,0 +1,8 @@
+<galaxy name="Galaxy A" w="7" h="3">
+    <level x="0" y="0" file="levels/galaxy_a/level1.xml"/>
+    <level x="1" y="0" file="levels/galaxy_a/level2.xml"/>
+    <level x="2" y="0" file="levels/galaxy_a/level3.xml"/>
+    <level x="3" y="0" file="levels/galaxy_a/level4.xml"/>
+    <level x="4" y="0" file="levels/galaxy_a/level5.xml"/>
+    <level x="5" y="0" file="levels/galaxy_a/level6.xml"/>
+</galaxy>

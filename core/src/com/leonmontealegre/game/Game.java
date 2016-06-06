@@ -13,8 +13,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -26,6 +28,7 @@ import com.leonmontealegre.game.levels.CollectAstronautsLevel;
 import com.leonmontealegre.game.levels.Level;
 import com.leonmontealegre.game.levels.ReachFinishLevel;
 import com.leonmontealegre.utils.Input;
+import com.leonmontealegre.utils.Utils;
 
 import java.io.IOException;
 
@@ -50,9 +53,11 @@ public class Game extends ApplicationAdapter {
 	private Level level;
 
 	private MainMenu menu;
+	private LevelSelect levelSelect;
 	private Stage levelStage;
-	private Table levelTable;
-	private TextButton levelRestartButton;
+	private Table pauseMenuTable;
+	private Button levelPauseButton;
+	private TextButton resumeButton, restartButton, backToMenuButton;
 	private Texture levelWinOverlay;
 
 	public Music backgroundMusic;
@@ -68,6 +73,8 @@ public class Game extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+		Gdx.input.setCatchBackKey(true);
+
 		FileHandle particles = Gdx.files.internal("particle_systems/particles"); // Load all particles
 		for (FileHandle particle : particles.list())
 			Particle.load(particle.path());
@@ -76,7 +83,8 @@ public class Game extends ApplicationAdapter {
 		levelStage = new Stage(new ScreenViewport());
 
 		loadLevelUI();
-		menu = new MainMenu(skin, this);
+		menu = new MainMenu(this);
+		levelSelect = new LevelSelect(skin, this);
 		levelWinOverlay = new Texture("winOverlay.png");
 		levelWinOverlay.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
@@ -86,6 +94,7 @@ public class Game extends ApplicationAdapter {
 		inputMultiplexer.addProcessor(gestureDetector);
 		inputMultiplexer.addProcessor(levelStage);
 		inputMultiplexer.addProcessor(menu.stage);
+		inputMultiplexer.addProcessor(levelSelect.stage);
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -116,7 +125,7 @@ public class Game extends ApplicationAdapter {
 
 	public void startLevel(String file) {
 		level = loadLevel(file);
-		currentState = State.Playing;
+		setCurrentState(State.Playing);
 	}
 
 	private Level loadLevel(String file) {
@@ -149,29 +158,29 @@ public class Game extends ApplicationAdapter {
 	float winTimer = 0;
 
 	private void update() {
+		if (currentState == State.Playing) {
+			level.update();
+			if (!level.hasWon) {
+				if (Input.isTouchDown())
+					initialScale = camera.zoom;
 
-		if (!level.hasWon) {
-			if (Input.isTouchDown())
-				initialScale = camera.zoom;
+				if (Input.getZoom() > 0)
+					camera.zoom = initialScale * Input.getZoom();
 
-			if (Input.getZoom() > 0)
-				camera.zoom = initialScale * Input.getZoom();
-
-			if (!Input.getPan().isZero())
-				camera.translate(-camera.zoom * Input.getPan().x, camera.zoom * Input.getPan().y);
-		} else {
-			winTimer++;
-			if (winTimer >= Options.TARGET_UPS * 4) { // 4 seconds has passed
-				winTimer = 0;
-				level = null;
-				camera.zoom = 1;
-				camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
-				camera.update();
-				currentState = State.Menu;
-				Options.TARGET_UPS *= 4;
+				if (!Input.getPan().isZero())
+					camera.translate(-camera.zoom * Input.getPan().x, camera.zoom * Input.getPan().y);
+			} else {
+				winTimer++;
+				if (winTimer >= Options.TARGET_UPS * 4) { // 4 seconds has passed
+					winTimer = 0;
+					level = null;
+					finishLevel();
+					Options.TARGET_UPS *= 4;
+				}
 			}
+		} else if (currentState == State.LevelSelect) {
+			levelSelect.update();
 		}
-
 	}
 
 	@Override
@@ -182,11 +191,7 @@ public class Game extends ApplicationAdapter {
 		delta += (now - lastTime) / ns;
 		lastTime = now;
 		while (delta >= 1) {
-			if (currentState == State.Playing) {
-				level.update();
-				this.update();
-			}
-
+			this.update();
 			Input.update();
 			updates++;
 			delta--;
@@ -200,6 +205,9 @@ public class Game extends ApplicationAdapter {
 		if (currentState == State.Menu) {
 			batch.setProjectionMatrix(uiCamera.combined);
 			menu.render(batch);
+		} else if (currentState == State.LevelSelect) {
+			batch.setProjectionMatrix(uiCamera.combined);
+			levelSelect.render(batch);
 		} else if (currentState == State.Playing) {
 			batch.setProjectionMatrix(camera.combined);
 			sr.setProjectionMatrix(camera.combined);
@@ -231,9 +239,9 @@ public class Game extends ApplicationAdapter {
 
 		frames++;
 
-		if (System.currentTimeMillis() - timer > 1000) {
-			timer += 1000;
-			System.out.println(Options.TITLE + " | " + updates + " ups, " + frames + " fps");
+		if (System.currentTimeMillis() - timer > 5000) {
+			timer += 5000;
+			System.out.println(Options.TITLE + " | " + updates/5 + " ups, " + frames/5 + " fps");
 			System.out.println(Options.TITLE + " | " + Gdx.app.getJavaHeap()/1000000.0 + " mb, " + Gdx.app.getNativeHeap()/1000000.0 + " mb");
 			updates = frames = 0;
 		}
@@ -252,29 +260,109 @@ public class Game extends ApplicationAdapter {
 	}
 
 	private void loadLevelUI() {
-		levelTable = new Table();
-		levelTable.pad(15f);
-		levelTable.setWidth(levelStage.getWidth());
-		levelTable.align(Align.right | Align.top);
-		levelTable.setPosition(0, Gdx.graphics.getHeight());
+		pauseMenuTable = new Table();
+		pauseMenuTable.pad(5f);
+		pauseMenuTable.setHeight(levelStage.getHeight());
+		pauseMenuTable.setWidth(levelStage.getWidth());
+		pauseMenuTable.align(Align.center);
 
-		levelRestartButton = new TextButton("Restart", skin);
-		levelRestartButton.addListener(new ClickListener() {
+		resumeButton = new TextButton("Resume", skin);
+		resumeButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				if (level != null)
-					level.restart();
+				if (level != null) {
+					level.resume();
+					pauseMenuTable.setVisible(false);
+				}
 			}
 		});
-		levelRestartButton.getLabel().setFontScale(4f);
-		float restartButtonWidth = Gdx.graphics.getWidth()/7;
-		levelTable.add(levelRestartButton).width(restartButtonWidth).height(restartButtonWidth*9/16);
+		resumeButton.getLabel().setFontScale(4f);
+		restartButton = new TextButton("Restart", skin);
+		restartButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if (level != null) {
+					level.restart();
+					pauseMenuTable.setVisible(false);
+				}
+			}
+		});
+		restartButton.getLabel().setFontScale(4f);
+		backToMenuButton = new TextButton("Back to Menu", skin);
+		backToMenuButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				finishLevel();
+			}
+		});
+		backToMenuButton.getLabel().setFontScale(4f);
 
-		levelStage.addActor(levelTable);
+		float buttonWidth = pauseMenuTable.getWidth() * 2/3, buttonHeight = pauseMenuTable.getHeight() / 5;
+		pauseMenuTable.add(resumeButton).width(buttonWidth).height(buttonHeight-6).pad(2);
+		pauseMenuTable.row();
+		pauseMenuTable.add(restartButton).width(buttonWidth).height(buttonHeight-6).pad(2);
+		pauseMenuTable.row();
+		pauseMenuTable.add(backToMenuButton).width(buttonWidth).height(buttonHeight-6).pad(2);
+
+		levelPauseButton = Utils.createButton("pause.png");
+		levelPauseButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if (level != null) {
+					if (level.isPaused()) {
+						level.resume();
+						pauseMenuTable.setVisible(false);
+					} else {
+						level.pause();
+						pauseMenuTable.setVisible(true);
+					}
+				}
+			}
+		});
+		float restartButtonSize = Gdx.graphics.getWidth()/15;
+		levelPauseButton.setWidth(restartButtonSize);
+		levelPauseButton.setHeight(restartButtonSize);
+		levelPauseButton.setPosition(levelStage.getWidth() - levelPauseButton.getWidth() - 15, levelStage.getHeight() - levelPauseButton.getHeight() - 15);
+		levelStage.addActor(levelPauseButton);
+
+		levelStage.addActor(pauseMenuTable);
+		pauseMenuTable.setVisible(false);
+	}
+
+	public void setCurrentState(State state) {
+		this.currentState = state;
+
+		if (state == State.Menu) {
+			menu.setVisible(true);
+			levelSelect.setVisible(false);
+			this.setLevelVisible(false);
+		} else if (state == State.LevelSelect) {
+			levelSelect.setVisible(true);
+			menu.setVisible(false);
+			this.setLevelVisible(false);
+		} else if (state == State.Playing) {
+			this.setLevelVisible(true);
+			levelSelect.setVisible(false);
+			menu.setVisible(false);
+		}
+	}
+
+	private void finishLevel() {
+		camera.zoom = 1;
+		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+		camera.update();
+		this.setCurrentState(State.Menu);
+	}
+
+	public void setLevelVisible(boolean b) {
+		for (Actor actor : levelStage.getActors())
+			actor.setVisible(b);
+		pauseMenuTable.setVisible(false);
 	}
 
 	enum State {
 		Menu,
+		LevelSelect,
 		Playing
 	}
 }

@@ -4,11 +4,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-public class FinishLine {
+public class Debris {
 
-    private static Texture tex1 = new Texture("finishFlag.png");
+    private static Texture textures[] = {new Texture("debris1.png"), new Texture("debris2.png"), new Texture("debris3.png")};
 
     public Sprite sprite;
 
@@ -16,17 +17,20 @@ public class FinishLine {
 
     private Vector2 position;
 
-    private int radius;
-
     private Circle circle;
 
-    public FinishLine(Level level, Vector2 pos, int radius) {
+    public int radius;
+
+    private float speed;
+
+    public Debris(Level level, Vector2 pos, int radius) {
         this.level = level;
         this.position = pos;
         this.radius = radius;
+        this.speed = MathUtils.random(-0.5f, 0.5f);
 
-        sprite = new Sprite(tex1);
-        sprite.setScale(2 * radius / tex1.getWidth(), 2 * radius / tex1.getHeight());
+        sprite = new Sprite(textures[(int)(MathUtils.random()*textures.length)]);
+        sprite.setScale(2 * radius / sprite.getTexture().getWidth(), 2 * radius / sprite.getTexture().getHeight());
         sprite.setPosition(position.x, position.y);
 
         circle = new Circle(position.x + sprite.getWidth() / 2, position.y + sprite.getHeight() / 2, radius);
@@ -34,10 +38,14 @@ public class FinishLine {
 
     public void update() {
         if (level.player != null && level.player.collidesWith(this.circle)) {
-            //win
-            System.out.println("win!");
-            level.win();
+            level.player.shouldDestroy = true;
         }
+
+        this.sprite.rotate(speed);
+    }
+
+    public Circle getCircle() {
+        return this.circle;
     }
 
     public void render(SpriteBatch batch) {

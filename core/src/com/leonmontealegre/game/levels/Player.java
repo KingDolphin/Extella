@@ -35,11 +35,11 @@ public class Player {
         velocity = new Vector2();
         mass = 10;
 
-        System.out.println(tex.getWidth() + ", " + sprite.getWidth() + ", " + tex.getHeight() + ", " + sprite.getHeight());
         float width = tex.getWidth(), height = tex.getHeight();
-        polygon = new Polygon(new float[]{0,0,width,0,width,height,0,height});
-        polygon.setOrigin(width/2, height/2);
+        polygon = new Polygon(new float[]{5, 0, width-5, 0, width-5, height, 5, height});
+        polygon.setOrigin(width / 2, height / 2);
         polygon.scale(1);
+        sprite.setRotation(-90);
     }
 
     public void resolveCollisionWith(Planet planet) {
@@ -48,6 +48,12 @@ public class Player {
         if (overlaps(polygon, planet.getCircle())) {
             shouldDestroy = true;
         }
+    }
+
+    public boolean collidesWith(Circle circle) {
+        polygon.setPosition(position.x,position.y);
+        polygon.setRotation(sprite.getRotation());
+        return overlaps(polygon, circle);
     }
 
     public void update() {

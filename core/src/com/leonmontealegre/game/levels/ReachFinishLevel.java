@@ -17,7 +17,9 @@ public class ReachFinishLevel extends Level {
     }
 
     public void update() {
-        finishLine.update();
+        if (!this.paused) {
+            finishLine.update();
+        }
 
         super.update();
     }
@@ -25,25 +27,9 @@ public class ReachFinishLevel extends Level {
     public void render(SpriteBatch batch) {
         batch.begin();
 
-        if (player != null)
-            player.render(batch);
-
-        for (Planet planet : planets)
-            planet.render(batch);
-
         finishLine.render(batch);
 
-        if (explosion != null)
-            explosion.render(batch);
-
-
-        if (displayHelp) {
-            float w = Gdx.graphics.getWidth()/2;
-            float h = w * helpText.getHeight() / helpText.getWidth();
-            batch.draw(helpText, 0, Gdx.graphics.getHeight()-h-15, w, h);
-        }
-
-        batch.end();
+        super.render(batch);
     }
 
     @Override

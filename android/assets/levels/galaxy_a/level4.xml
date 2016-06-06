@@ -1,0 +1,57 @@
+<level name="Level4" type="FinishLine">
+   <player
+      x="0"
+      y="0"/>
+   <planet
+      x="550"
+      y="600"
+      radius="100" />
+    <debris
+        x="565"
+        y="450"
+        radius="20"/>
+    <debris
+        x="610"
+        y="760"
+        radius="27"/>
+    <debris
+        x="380"
+        y="580"
+        radius="21"/>
+  <planet
+      x="600"
+      y="200"
+      radius="50" />
+  <planet
+      x="850"
+      y="350"
+      radius="55" />
+  <planet
+      x="980"
+      y="620"
+      radius="52" />
+  <planet
+      x="130"
+      y="400"
+      radius="54" />
+  <planet
+      x="200"
+      y="750"
+      radius="49" />
+  <planet
+      x="500"
+      y="900"
+      radius="53" />
+  <planet
+      x="710"
+      y="980"
+      radius="47" />
+   <planet 
+      x="-50"
+      y="950"
+      radius="62" />  
+   <finish
+      x="980"
+      y="900"
+      radius="50"/>
+</level>
