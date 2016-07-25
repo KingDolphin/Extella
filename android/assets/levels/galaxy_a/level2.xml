@@ -3,6 +3,15 @@
        x="0.5"
        y="0.5"
        zoom="1.25">
+    <background
+        color="0 226 64"
+        size1="10"
+        size2="4"
+        shiftSpeed="0.0097"
+        flowSpeed="0.013"
+        frameRate="2"
+        intensity="2.25"
+        resolution="8"/>
     <player
         x="50"
         y="50"/>

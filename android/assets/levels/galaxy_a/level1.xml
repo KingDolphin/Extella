@@ -11,8 +11,8 @@
       shiftSpeed="0.0097"
       flowSpeed="0.013"
       frameRate="2"
-      intensity="2.25"
-      resolution="8"/>
+      intensity="3.65"
+      resolution="14"/>
    <player
       x="0"
       y="0"/>

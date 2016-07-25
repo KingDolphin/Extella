@@ -169,7 +169,7 @@ public class Game extends ApplicationAdapter {
 
 
 				if (Input.getZoom() > 0)
-					camera.zoom = Math.max(initialScale * Input.getZoom(), 1.0f);
+					camera.zoom = initialScale * Input.getZoom();
 
 				if (!Input.getPan().isZero())
 					camera.translate(-camera.zoom * Input.getPan().x, camera.zoom * Input.getPan().y);
@@ -231,10 +231,10 @@ public class Game extends ApplicationAdapter {
 				BlackHole.shader.begin();
 				BlackHole.shader.setUniformf("cameraPos", camera.position);
 				BlackHole.shader.setUniformf("cameraZoom", camera.zoom);
-//				Logger.log(camera.zoom);
 				BlackHole.shader.end();
 				uiBatch.setShader(BlackHole.shader);
 			}
+
 
 			// Draw frame buffer to screen
 			uiBatch.begin();

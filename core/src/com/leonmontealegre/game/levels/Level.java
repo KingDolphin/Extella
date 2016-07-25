@@ -190,6 +190,13 @@ public class Level {
             sr.circle(planet.getCircle().x, planet.getCircle().y, planet.getCircle().radius);
         }
 
+        for (BlackHole blackHole : blackHoles) {
+            sr.setColor(Color.BLUE);
+            sr.circle(blackHole.getTapCircle().x, blackHole.getTapCircle().y, blackHole.getTapCircle().radius);
+            sr.setColor(Color.GREEN);
+            sr.circle(blackHole.getCircle().x, blackHole.getCircle().y, blackHole.getCircle().radius);
+        }
+
         for (Debris d : debris) {
             sr.setColor(Color.GREEN);
             sr.circle(d.getCircle().x, d.getCircle().y, d.getCircle().radius);
