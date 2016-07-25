@@ -6,30 +6,37 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.Options;
 import com.leonmontealegre.game.ParticleSystem;
 import com.leonmontealegre.utils.Input;
 import com.leonmontealegre.utils.Touch;
 
 public class Planet {
 
-    private static Texture tex1 = new Texture("planet01.png"), tex2 = new Texture("planet02.png");
+    protected static Texture tex1 = new Texture("textures/level_objects/planet01.png"), tex2 = new Texture("textures/level_objects/planet02.png");
 
     public Sprite sprite;
 
-    private Level level;
+    protected Level level;
+
+    public final Vector2 startPosition;
+    public Vector2 position;
+    protected Vector2 velocity;
 
     public float radius, force;
 
-    public Vector2 position;
+    protected Circle circle;
+    protected Circle tapCircle;
 
-    private Circle circle;
-    private Circle tapCircle;
+    protected boolean isOn = false;
 
-    private boolean isOn = false;
+    protected ParticleSystem system;
 
-    private ParticleSystem system;
+    protected boolean wasZooming = false;
+    protected boolean wasPanning = false;
 
     public Planet(Level level, Vector2 position, float radius, float force) {
+        this.startPosition = new Vector2(position);
         this.level = level;
         this.radius = radius;
         this.force = force == 0 ? radius*radius / 2500f * 1e6f : force;
@@ -49,6 +56,7 @@ public class Planet {
         tapCircle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, radius + radius * extraSize);
 
         this.position = new Vector2(circle.x, circle.y);
+        this.velocity = new Vector2();
 
         system.position = new Vector2(this.position.x, this.position.y);
         system.setMinSize(new Vector2(2*radius, 2*radius));
@@ -59,10 +67,20 @@ public class Planet {
     public void update() {
         Player player = level.player;
 
+        position.add(velocity);
+        sprite.translate(velocity.x, velocity.y);
+        circle.x += velocity.x;
+        circle.y += velocity.y;
+        tapCircle.x += velocity.x;
+        tapCircle.y += velocity.y;
+        system.position.add(velocity);
+
+        int numReleased = 0;
         for (Touch t : Input.touches) {
-            if (t.isReleased() && tapCircle.contains(level.unproject(t.position))) {
+            if (t.isReleased() && !wasZooming && !wasPanning && tapCircle.contains(level.unproject(t.position))) {
                 isOn = !isOn;
                 if (isOn) {
+                    system.spawn(1);
                     system.resume();
                 } else {
                     system.pause();
@@ -70,7 +88,18 @@ public class Planet {
                 }
                 break;
             }
+            if (t.isReleased())
+                numReleased++;
         }
+        if (numReleased == Input.touches.size()) {
+            wasZooming = false;
+            wasPanning = false;
+        }
+
+        if (Input.getZoom() > 0)
+            wasZooming = true;
+        if (Math.abs(Input.getPan().x) > 0 || Math.abs(Input.getPan().y) > 0)
+            wasPanning = true;
 
         if (isOn && player != null) {
             Vector2 dPos = new Vector2(position).sub(player.position);
@@ -80,6 +109,16 @@ public class Planet {
             player.addForce(new Vector2(dPos).nor().scl(gravForce));
         }
         system.update();
+    }
+
+    public void addForce(Vector2 force) {
+        //a = F/m
+        Vector2 acceleration = new Vector2(force).scl(1f / radius);
+
+        float time = (float)Level.TIME_SCALE / Options.TARGET_UPS;
+
+        //vf = v0 + at
+        velocity.add(acceleration.scl(time));
     }
 
     public Circle getCircle() {

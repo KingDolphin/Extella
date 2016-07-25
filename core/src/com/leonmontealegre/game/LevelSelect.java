@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.leonmontealegre.utils.Input;
 import com.leonmontealegre.utils.Key;
+import com.leonmontealegre.utils.Logger;
 
 public class LevelSelect {
 
@@ -39,7 +40,7 @@ public class LevelSelect {
     private Vector3[] positions;
 
     public LevelSelect(final Skin skin, final Game game) {
-        background = new Texture("stars.png");
+        background = new Texture("textures/UI/stars.png");
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -67,7 +68,7 @@ public class LevelSelect {
         // Create a new style for the galaxies for custom background image
         TextButton.TextButtonStyle tbStyle = new TextButton.TextButtonStyle();
         tbStyle.font = skin.getFont("default-font"); // set font
-        Texture galaxyTex = new Texture("galaxy.png");
+        Texture galaxyTex = new Texture("textures/level_objects/galaxy.png");
         tbStyle.up = new TextureRegionDrawable(new TextureRegion(galaxyTex)); // set background
 
         float galaxyW = Gdx.graphics.getWidth() / 8f;
@@ -101,7 +102,7 @@ public class LevelSelect {
         }
 
         // Create back button
-        ImageButton backButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("backArrow.png"))));
+        ImageButton backButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("textures/UI/backArrow.png"))));
         backButton.setWidth(Gdx.graphics.getWidth() / 9);
         backButton.setHeight(Gdx.graphics.getHeight() / 9);
         backButton.setPosition(Gdx.graphics.getWidth() - backButton.getWidth() - 15, Gdx.graphics.getHeight() - backButton.getHeight() - 15);
@@ -128,12 +129,13 @@ public class LevelSelect {
                 }
             }
         });
+        button.getLabel().setFontScale(0.5f);
         return button;
     }
 
     public void update() {
         if (Input.getKey(Key.BACK)) {
-            System.out.println("back");
+            Logger.log("back");
         }
 
         camera.position.set(scrollPane.getScrollX()/2f + scrollPane.getMaxX()/2f, scrollPane.getMaxY() - scrollPane.getScrollY()/2f, camera.position.z);

@@ -9,26 +9,23 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.XmlReader;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.leonmontealegre.game.levels.BlackHole;
 import com.leonmontealegre.game.levels.CollectAstronautsLevel;
 import com.leonmontealegre.game.levels.Level;
 import com.leonmontealegre.game.levels.ReachFinishLevel;
 import com.leonmontealegre.utils.Input;
-import com.leonmontealegre.utils.Utils;
+import com.leonmontealegre.utils.Logger;
 
 import java.io.IOException;
 
@@ -42,7 +39,7 @@ public class Game extends ApplicationAdapter {
 	private int frames = 0;
 	private int updates = 0;
 
-	private OrthographicCamera camera, uiCamera;
+	public OrthographicCamera camera, uiCamera;
 
 	private SpriteBatch batch, uiBatch;
 	private ShapeRenderer sr;
@@ -54,48 +51,35 @@ public class Game extends ApplicationAdapter {
 
 	private MainMenu menu;
 	private LevelSelect levelSelect;
-	private Stage levelStage;
-	private Table pauseMenuTable;
-	private Button levelPauseButton;
-	private TextButton resumeButton, restartButton, backToMenuButton;
-	private Texture levelWinOverlay;
+	private LevelUI levelUI;
 
 	public Music backgroundMusic;
 	public Preferences prefs;
 
-	// collect astronauts
-	// debris that kills u
-	// wall to break by flying at high speed into it
-	// black holes, stars, things other than planets
-	// check points, race, must make orbit to go through all flags
-	// orbit specific planet
-	// planets without gravity – hit flag to enable turning on and off of gravity – use that planet to finish level
+	private FrameBuffer screenBuffer;
+	private TextureRegion bufferRegion;
 	
 	@Override
 	public void create () {
-		Gdx.input.setCatchBackKey(true);
+		Logger.log(Gdx.gl.glGetString(GL20.GL_VERSION));
+		Logger.log(Gdx.graphics.getWidth() + ", " + Gdx.graphics.getHeight());
 
+		Gdx.input.setCatchBackKey(true);
 		FileHandle particles = Gdx.files.internal("particle_systems/particles"); // Load all particles
 		for (FileHandle particle : particles.list())
 			Particle.load(particle.path());
 
-		skin = new Skin(Gdx.files.internal("uiskin.json"));
-		levelStage = new Stage(new ScreenViewport());
+		skin = new Skin();
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("textures/UI/font.otf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 50;
+		BitmapFont font = generator.generateFont(parameter);
+		font.setColor(0, 0, 0, 1);
+		generator.dispose();
 
-		loadLevelUI();
-		menu = new MainMenu(this);
-		levelSelect = new LevelSelect(skin, this);
-		levelWinOverlay = new Texture("winOverlay.png");
-		levelWinOverlay.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-
-		GestureDetector gestureDetector = new GestureDetector(20, 0.5f, 2, 0.15f, Input.gestureInstance);
-		InputMultiplexer inputMultiplexer = new InputMultiplexer();
-		inputMultiplexer.addProcessor(Input.instance);
-		inputMultiplexer.addProcessor(gestureDetector);
-		inputMultiplexer.addProcessor(levelStage);
-		inputMultiplexer.addProcessor(menu.stage);
-		inputMultiplexer.addProcessor(levelSelect.stage);
-		Gdx.input.setInputProcessor(inputMultiplexer);
+		skin.add("default-font", font);
+		skin.addRegions(new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
+		skin.load(Gdx.files.internal("uiskin.json"));
 
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -106,13 +90,27 @@ public class Game extends ApplicationAdapter {
 		uiCamera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 		uiCamera.update();
 
+		Explosion.load();
+		levelUI = new LevelUI(skin, this);
+		menu = new MainMenu(this);
+		levelSelect = new LevelSelect(skin, this);
+
+		GestureDetector gestureDetector = new GestureDetector(20, 0.5f, 2, 0.15f, Input.gestureInstance);
+		InputMultiplexer inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(levelUI.stage);
+		inputMultiplexer.addProcessor(menu.stage);
+		inputMultiplexer.addProcessor(levelSelect.stage);
+		inputMultiplexer.addProcessor(Input.instance);
+		inputMultiplexer.addProcessor(gestureDetector);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+
 		batch = new SpriteBatch();
 		uiBatch = new SpriteBatch();
 		sr = new ShapeRenderer();
 
 		currentState = State.Menu;
 
-		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("spaceMusic.wav"));
+		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/spaceMusic.wav"));
 		backgroundMusic.setLooping(true);
 		backgroundMusic.setVolume(0.25f);
 
@@ -121,25 +119,30 @@ public class Game extends ApplicationAdapter {
 			backgroundMusic.play();
 		else
 			menu.soundButton.setChecked(true);
+
+		screenBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		bufferRegion = new TextureRegion(screenBuffer.getColorBufferTexture(), screenBuffer.getWidth(), screenBuffer.getHeight());
+		bufferRegion.flip(false, true);
 	}
 
-	public void startLevel(String file) {
-		level = loadLevel(file);
+	public void startLevel(Galaxy galaxy, int x, int y, String file) {
 		setCurrentState(State.Playing);
+		level = loadLevel(galaxy, x, y, file);
 	}
 
-	private Level loadLevel(String file) {
+	public Level loadLevel(Galaxy galaxy, int x, int y, String file) {
 		try {
 			XmlReader reader = new XmlReader();
 			XmlReader.Element root = reader.parse(Gdx.files.internal(file));
 
 			String type = root.get("type");
-			if (type.equals("FinishLine"))
-				return new ReachFinishLevel(camera, file);
-			else if (type.equals("CollectAstronauts"))
-				return new CollectAstronautsLevel();
-			else
+			if (type.equals("FinishLine")) {
+				return new ReachFinishLevel(galaxy, x, y, levelUI, camera, root);
+			} else if (type.equals("CollectAstronauts")) {
+				return new CollectAstronautsLevel(galaxy, x, y, levelUI, camera, root);
+			} else {
 				return null;
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -158,24 +161,25 @@ public class Game extends ApplicationAdapter {
 	float winTimer = 0;
 
 	private void update() {
-		if (currentState == State.Playing) {
+		if (currentState == State.Playing && !level.isPaused()) {
 			level.update();
 			if (!level.hasWon) {
 				if (Input.isTouchDown())
 					initialScale = camera.zoom;
 
+
 				if (Input.getZoom() > 0)
-					camera.zoom = initialScale * Input.getZoom();
+					camera.zoom = Math.max(initialScale * Input.getZoom(), 1.0f);
 
 				if (!Input.getPan().isZero())
 					camera.translate(-camera.zoom * Input.getPan().x, camera.zoom * Input.getPan().y);
 			} else {
 				winTimer++;
-				if (winTimer >= Options.TARGET_UPS * 4) { // 4 seconds has passed
+				if (winTimer >= Options.TARGET_UPS * 4) { // 4 seconds have passed
 					winTimer = 0;
-					level = null;
-					finishLevel();
 					Options.TARGET_UPS *= 4;
+					level.pause();
+					levelUI.showWinScreen();
 				}
 			}
 		} else if (currentState == State.LevelSelect) {
@@ -193,6 +197,7 @@ public class Game extends ApplicationAdapter {
 		while (delta >= 1) {
 			this.update();
 			Input.update();
+			levelUI.update();
 			updates++;
 			delta--;
 		}
@@ -212,19 +217,34 @@ public class Game extends ApplicationAdapter {
 			batch.setProjectionMatrix(camera.combined);
 			sr.setProjectionMatrix(camera.combined);
 
-			level.drawBackground(uiBatch);
+			// Render game to frame buffer
+			screenBuffer.begin();
 
+			level.drawBackground(uiBatch);
 			level.render(batch);
 
-			levelStage.act(Gdx.graphics.getDeltaTime());
-			levelStage.draw();
+			screenBuffer.end();
 
-			if (level.hasWon) {
-				batch.setProjectionMatrix(uiCamera.combined);
-				batch.begin();
-				batch.draw(levelWinOverlay, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-				batch.end();
+
+			// Setup black hole shader if there is a black hole
+			if (!level.blackHoles.isEmpty()) {
+				BlackHole.shader.begin();
+				BlackHole.shader.setUniformf("cameraPos", camera.position);
+				BlackHole.shader.setUniformf("cameraZoom", camera.zoom);
+//				Logger.log(camera.zoom);
+				BlackHole.shader.end();
+				uiBatch.setShader(BlackHole.shader);
 			}
+
+			// Draw frame buffer to screen
+			uiBatch.begin();
+			uiBatch.draw(bufferRegion, 0, 0);
+			uiBatch.end();
+
+			uiBatch.setShader(null);
+
+			// Render UI
+			levelUI.render();
 		}
 
 		if (debug) {
@@ -241,92 +261,22 @@ public class Game extends ApplicationAdapter {
 
 		if (System.currentTimeMillis() - timer > 5000) {
 			timer += 5000;
-			System.out.println(Options.TITLE + " | " + updates/5 + " ups, " + frames/5 + " fps");
-			System.out.println(Options.TITLE + " | " + Gdx.app.getJavaHeap()/1000000.0 + " mb, " + Gdx.app.getNativeHeap()/1000000.0 + " mb");
+			Logger.log(Options.TITLE + " | " + updates/5 + " ups, " + frames/5 + " fps");
+			Logger.log(Options.TITLE + " | " + Gdx.app.getJavaHeap()/1000000.0 + " mb, " + Gdx.app.getNativeHeap()/1000000.0 + " mb");
 			updates = frames = 0;
 		}
 	}
 
 	@Override
 	public void resume() {
-		timer = System.nanoTime();
+		timer = System.currentTimeMillis();
 		super.resume();
 	}
 
 	@Override
 	public void pause() {
-		prefs.flush();
+		prefs.flush(); // Save preferences
 		super.pause();
-	}
-
-	private void loadLevelUI() {
-		pauseMenuTable = new Table();
-		pauseMenuTable.pad(5f);
-		pauseMenuTable.setHeight(levelStage.getHeight());
-		pauseMenuTable.setWidth(levelStage.getWidth());
-		pauseMenuTable.align(Align.center);
-
-		resumeButton = new TextButton("Resume", skin);
-		resumeButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				if (level != null) {
-					level.resume();
-					pauseMenuTable.setVisible(false);
-				}
-			}
-		});
-		resumeButton.getLabel().setFontScale(4f);
-		restartButton = new TextButton("Restart", skin);
-		restartButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				if (level != null) {
-					level.restart();
-					pauseMenuTable.setVisible(false);
-				}
-			}
-		});
-		restartButton.getLabel().setFontScale(4f);
-		backToMenuButton = new TextButton("Back to Menu", skin);
-		backToMenuButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				finishLevel();
-			}
-		});
-		backToMenuButton.getLabel().setFontScale(4f);
-
-		float buttonWidth = pauseMenuTable.getWidth() * 2/3, buttonHeight = pauseMenuTable.getHeight() / 5;
-		pauseMenuTable.add(resumeButton).width(buttonWidth).height(buttonHeight-6).pad(2);
-		pauseMenuTable.row();
-		pauseMenuTable.add(restartButton).width(buttonWidth).height(buttonHeight-6).pad(2);
-		pauseMenuTable.row();
-		pauseMenuTable.add(backToMenuButton).width(buttonWidth).height(buttonHeight-6).pad(2);
-
-		levelPauseButton = Utils.createButton("pause.png");
-		levelPauseButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				if (level != null) {
-					if (level.isPaused()) {
-						level.resume();
-						pauseMenuTable.setVisible(false);
-					} else {
-						level.pause();
-						pauseMenuTable.setVisible(true);
-					}
-				}
-			}
-		});
-		float restartButtonSize = Gdx.graphics.getWidth()/15;
-		levelPauseButton.setWidth(restartButtonSize);
-		levelPauseButton.setHeight(restartButtonSize);
-		levelPauseButton.setPosition(levelStage.getWidth() - levelPauseButton.getWidth() - 15, levelStage.getHeight() - levelPauseButton.getHeight() - 15);
-		levelStage.addActor(levelPauseButton);
-
-		levelStage.addActor(pauseMenuTable);
-		pauseMenuTable.setVisible(false);
 	}
 
 	public void setCurrentState(State state) {
@@ -335,29 +285,27 @@ public class Game extends ApplicationAdapter {
 		if (state == State.Menu) {
 			menu.setVisible(true);
 			levelSelect.setVisible(false);
-			this.setLevelVisible(false);
+			levelUI.setVisible(false);
 		} else if (state == State.LevelSelect) {
 			levelSelect.setVisible(true);
 			menu.setVisible(false);
-			this.setLevelVisible(false);
+			levelUI.setVisible(false);
 		} else if (state == State.Playing) {
-			this.setLevelVisible(true);
+			levelUI.setVisible(true);
 			levelSelect.setVisible(false);
 			menu.setVisible(false);
 		}
 	}
 
-	private void finishLevel() {
+	public void finishLevel() {
 		camera.zoom = 1;
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 		camera.update();
 		this.setCurrentState(State.Menu);
 	}
 
-	public void setLevelVisible(boolean b) {
-		for (Actor actor : levelStage.getActors())
-			actor.setVisible(b);
-		pauseMenuTable.setVisible(false);
+	public Level getLevel() {
+		return level;
 	}
 
 	enum State {

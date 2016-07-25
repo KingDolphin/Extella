@@ -1,0 +1,16 @@
+<level name="Level Template" type="FinishLine">
+<player
+    x="0"
+    y="0"/>
+<finish
+    x="100"
+    y="100"
+    radius="50"/>
+<black_hole
+    x="0"
+    y="0"
+    radius="32"
+    deform_radius="255"/>
+</level>
+
+

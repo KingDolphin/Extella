@@ -19,7 +19,6 @@ public class MainMenu {
     public Stage stage;
     public Table table, table2, table3, table4;
     public Button startButton;
-    public Button quitButton;
     public Button soundButton;
     private Button optionButtons;
 
@@ -29,14 +28,14 @@ public class MainMenu {
 
     public MainMenu(final Game game) {
         stage = new Stage(new ScreenViewport());
-        background = new Texture("menuBackground.jpg");
+        background = new Texture("textures/UI/menuBackground.jpg");
 
         table = new Table();
         table.pad(15f);
         table.setWidth(stage.getWidth());
         table.align(Align.center);
         {
-            startButton = Utils.createButton("start.png");
+            startButton = Utils.createButton("textures/UI/start.png");
             startButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -44,17 +43,8 @@ public class MainMenu {
                 }
             });
 
-            quitButton = Utils.createButton("quit.png");
-            quitButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    Gdx.app.exit();
-                }
-            });
-
             float buttonWidth = Gdx.graphics.getWidth() / 7;
             table.add(startButton).width(buttonWidth).height(buttonWidth * 0.4f).pad(5f);
-            table.add(quitButton).width(buttonWidth).height(buttonWidth * 0.4f).pad(5f);
 
             table.setPosition(0, buttonWidth * 9 / 16);
         }
@@ -67,7 +57,7 @@ public class MainMenu {
         table2.align(Align.top);
         {
             float buttonWidth = Gdx.graphics.getWidth() * 2 / 7;
-            title = new Image(new Texture("logo.png"));
+            title = new Image(new Texture("textures/UI/logo.png"));
             table2.add(title).width(buttonWidth).height(buttonWidth * title.getHeight() / title.getWidth()).align(Align.center);
 
             table2.setPosition(0, Gdx.graphics.getHeight());
@@ -80,9 +70,9 @@ public class MainMenu {
         table3.setWidth(stage.getWidth());
         table3.align(Align.top | Align.left);
         {
-            float buttonWidth = Gdx.graphics.getWidth() / 15;
+            float buttonSize = Gdx.graphics.getWidth() / 15;
 
-            soundButton = Utils.createCheckButton("volumeOn.png", "volumeOff.png");
+            soundButton = Utils.createCheckButton("textures/UI/volumeOn.png", "textures/UI/volumeOff.png");
             soundButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -98,7 +88,7 @@ public class MainMenu {
                 }
             });
 
-            table3.add(soundButton).width(buttonWidth).height(buttonWidth);
+            table3.add(soundButton).width(buttonSize).height(buttonSize);
 
             table3.setPosition(0, Gdx.graphics.getHeight());
         }
@@ -109,9 +99,9 @@ public class MainMenu {
         table4.setWidth(stage.getWidth());
         table4.align(Align.top | Align.right);
         {
-            float buttonWidth = Gdx.graphics.getWidth() / 15;
+            float buttonSize = Gdx.graphics.getWidth() / 15;
 
-            optionButtons = Utils.createButton("options.png");
+            optionButtons = Utils.createButton("textures/UI/options.png");
             optionButtons.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -119,7 +109,7 @@ public class MainMenu {
                 }
             });
 
-            table4.add(optionButtons).width(buttonWidth).height(buttonWidth);
+            table4.add(optionButtons).width(buttonSize).height(buttonSize);
 
             table4.setPosition(0, Gdx.graphics.getHeight());
         }

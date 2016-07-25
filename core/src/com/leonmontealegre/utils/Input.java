@@ -48,6 +48,9 @@ public final class Input implements InputProcessor {
 	public static final int MIDDLE_MOUSE_BUTTON = 2;
 	public static final int BACK_MOUSE_BUTTON = 3;
 	public static final int FORWARD_MOUSE_BUTTON = 4;
+
+	/** The number of frames a touch must be held down in order to be recognized as a pan */
+	public static int PAN_FRAME_THRESHOLD = 0;
 	
 	/** Instance of Input to attach as the LibGDX listener. */
 	public static final Input instance = new Input();
@@ -70,6 +73,9 @@ public final class Input implements InputProcessor {
 	private static ArrayList<Integer> keysToChange = new ArrayList<Integer>();
 	private static int scrollAmount = 0;
 	private static Key lastKeyPressed = null;
+
+	private static boolean touchDown = false;
+	private static int touchDownFrameCount = 0;
 
 	private static float zoom = 0.0f;
 	private static Vector2 pan = new Vector2();
@@ -243,6 +249,13 @@ public final class Input implements InputProcessor {
 			if (touches.get(i).isReleased())
 				touches.remove(i--);
 		}
+		if (touches.size() == 0) {
+			touchDown = false;
+			touchDownFrameCount = 0;
+		}
+
+		if (touchDown)
+			touchDownFrameCount++;
 
 		zoom = 0;
 		pan = new Vector2();
@@ -287,6 +300,7 @@ public final class Input implements InputProcessor {
 				return false;
 		}
 
+		touchDown = true;
 		touches.add(new Touch(screenX, screenY, pointer, button));
 		return false;
 	}
@@ -357,7 +371,9 @@ public final class Input implements InputProcessor {
 		/** NOT FOR PUBLIC USE */
 		@Override
 		public boolean pan(float x, float y, float deltaX, float deltaY) {
-			pan = new Vector2(deltaX, deltaY);
+			if (touchDownFrameCount >= PAN_FRAME_THRESHOLD)
+				pan = new Vector2(deltaX, deltaY);
+
 			return false;
 		}
 

@@ -28,7 +28,7 @@ public class Explosion {
     }
 
     public static void load() {
-        animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.NORMAL, Gdx.files.internal("explosion.gif").read());
+        animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.NORMAL, Gdx.files.internal("textures/level_objects/explosion.gif").read());
     }
 
 }

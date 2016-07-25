@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class FinishLine {
 
-    private static Texture tex1 = new Texture("finishFlag.png");
+    private static Texture tex1 = new Texture("textures/level_objects/finishFlag.png");
 
     public Sprite sprite;
 
@@ -34,8 +34,6 @@ public class FinishLine {
 
     public void update() {
         if (level.player != null && level.player.collidesWith(this.circle)) {
-            //win
-            System.out.println("win!");
             level.win();
         }
     }

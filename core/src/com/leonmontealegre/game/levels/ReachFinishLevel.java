@@ -1,25 +1,22 @@
 package com.leonmontealegre.game.levels;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.XmlReader;
-
-import java.io.IOException;
+import com.leonmontealegre.game.Galaxy;
+import com.leonmontealegre.game.LevelUI;
 
 public class ReachFinishLevel extends Level {
 
     private FinishLine finishLine;
 
-    public ReachFinishLevel(Camera camera, String file) {
-        super(camera, file);
+    public ReachFinishLevel(Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
+        super(galaxy, x, y, ui, camera, root);
     }
 
     public void update() {
-        if (!this.paused) {
-            finishLine.update();
-        }
+        finishLine.update();
 
         super.update();
     }
@@ -33,18 +30,11 @@ public class ReachFinishLevel extends Level {
     }
 
     @Override
-    protected void load(String file) {
-        try {
-            XmlReader reader = new XmlReader();
-            XmlReader.Element root = reader.parse(Gdx.files.internal(file));
+    protected void load(XmlReader.Element root) {
+        XmlReader.Element finish = root.getChildByName("finish");
+        this.finishLine = new FinishLine(this, new Vector2(finish.getInt("x"), finish.getInt("y")), finish.getInt("radius"));
 
-            XmlReader.Element finish = root.getChildByName("finish");
-            this.finishLine = new FinishLine(this, new Vector2(finish.getInt("x"), finish.getInt("y")), finish.getInt("radius"));
-
-            super.load(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        super.load(root);
     }
 
 }

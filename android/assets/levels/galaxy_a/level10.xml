@@ -1,4 +1,4 @@
-<level name="Level 2"
+<level name="Level 10"
        type="FinishLine"
        x="0.5"
        y="0.5"
@@ -22,6 +22,16 @@
         x="1700"
         y="450"
         radius="180"/>
+    <black_hole
+        x="500"
+        y="1000"
+        radius="25"
+        deform_radius="215"/>
+    <black_hole
+        x="1000"
+        y="1000"
+        radius="25"
+        deform_radius="215"/>
     <finish
         x="2000"
         y="500"

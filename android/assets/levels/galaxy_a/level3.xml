@@ -1,4 +1,8 @@
-<level name="Level 3" type="FinishLine">
+<level name="Level 3"
+       type="FinishLine"
+       x="0.1"
+       y="0.3"
+       zoom="1">
    <player
       x="0"
       y="0"/>

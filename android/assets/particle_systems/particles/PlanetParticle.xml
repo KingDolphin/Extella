@@ -2,7 +2,7 @@
 
     <textures type="array">
         <!--<color> 0, 0, 0 </color>-->
-        <file> planetRing.png </file>
+        <file> textures/level_objects/planetRing.png </file>
     </textures>
 
 </particle>

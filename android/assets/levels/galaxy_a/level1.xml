@@ -1,4 +1,18 @@
-<level name="Level 1" type="FinishLine" displayTutorial="true">
+<level name="Level 1"
+       type="FinishLine"
+       x="0.0"
+       y="0.2"
+       zoom="1"
+       displayTutorial="true">
+   <background
+      color="0 168 219"
+      size1="10"
+      size2="4"
+      shiftSpeed="0.0097"
+      flowSpeed="0.013"
+      frameRate="2"
+      intensity="2.25"
+      resolution="8"/>
    <player
       x="0"
       y="0"/>

@@ -1,14 +1,37 @@
 package com.leonmontealegre.game;
 
-public final class Options {
-	
-	public static int TARGET_UPS = 60;
-	
-	public static final float restitution = 1.0f;
-	
-	public static final float GRAVITATIONAL_CONSTANT = 6.67408e-11f;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.XmlReader;
 
-	public static final String TITLE = "Extella";
+import java.io.IOException;
+
+public final class Options {
+
+	public static final String TITLE;
+
+	public static int TARGET_UPS;
+
+	public static final String astronautsRemainingText;
+	public static final String winText;
+	public static final String tutorialText0;
+
+	static {
+		XmlReader reader = new XmlReader();
+		XmlReader.Element settRoot = null;
+		XmlReader.Element langRoot = null;
+		try {
+			settRoot = reader.parse(Gdx.files.internal("XML/settings.xml"));
+			langRoot = reader.parse(Gdx.files.internal("XML/lang/strings-en.xml"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		TITLE = settRoot.getChild(0).get("title");
+		TARGET_UPS = settRoot.getChild(1).getInt("target_ups");
+
+		astronautsRemainingText = langRoot.getChildByName("astronauts_remaining_text").getText();
+		winText = langRoot.getChildByName("win_text").getText();
+		tutorialText0 = langRoot.getChildByName("tutorial_text_0").getText();
+	}
 	
 	private Options() {}
 	

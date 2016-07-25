@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.XmlReader;
+import com.leonmontealegre.utils.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class ParticleSystem {
         deadParticles = new LinkedList<Particle>();
         isPaused = false;
 
-        System.out.println(spawnTimer + ", " + minSize + ", " + maxSize + ", " + duration + ", " + minLife + ", " + maxLife + ", " + loop + ", " + maxParticles + ", " + particlesPerSecond);
+        Logger.log(spawnTimer + ", " + minSize + ", " + maxSize + ", " + duration + ", " + minLife + ", " + maxLife + ", " + loop + ", " + maxParticles + ", " + particlesPerSecond);
     }
 
     public void pause() {
@@ -65,6 +66,8 @@ public class ParticleSystem {
     }
 
     public void clear() {
+        timer = 0;
+        spawnTimer = 0;
         particles.clear();
         deadParticles.clear();
     }
@@ -130,6 +133,11 @@ public class ParticleSystem {
             );
             particles.add(particle);
         }
+    }
+
+    public void spawn(int amount) {
+        for (int i = 0; i < amount; i++)
+            spawnParticle();
     }
 
     private void load(String file) {
