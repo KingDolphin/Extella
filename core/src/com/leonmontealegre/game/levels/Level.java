@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.XmlReader;
+import com.leonmontealegre.game.Assets;
 import com.leonmontealegre.game.Explosion;
 import com.leonmontealegre.game.Galaxy;
 import com.leonmontealegre.game.LevelUI;
@@ -47,7 +48,7 @@ public class Level {
 
     public final int x, y;
 
-    protected Background background;
+    protected Background[] backgrounds;
 
     public Level(Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
         this.galaxy = galaxy;
@@ -136,7 +137,8 @@ public class Level {
         if (explosion != null)
             explosion.update();
 
-        background.update();
+        for (Background background : backgrounds)
+            background.update();
     }
 
     public void win() {
@@ -148,7 +150,10 @@ public class Level {
     }
 
     public void drawBackground(SpriteBatch batch) {
-        background.render(batch);
+        batch.begin();
+        for (Background background : backgrounds)
+            background.render(batch);
+        batch.end();
     }
 
     public void render(SpriteBatch batch) {
@@ -216,22 +221,32 @@ public class Level {
         camera.zoom *= 1920f / Gdx.graphics.getWidth();
         camera.update();
 
-        XmlReader.Element background = root.getChildByName("background");
-        if (background != null) {
+        Array<XmlReader.Element> backgrounds = root.getChildrenByName("background");
+        this.backgrounds = new Background[backgrounds.size];
+        for (int i = 0; i < backgrounds.size; i++) {
+            XmlReader.Element background = backgrounds.get(i);
+            String type = background.get("type");
+
             String[] colors = background.get("color").split(" ");
             Color color = new Color(Integer.parseInt(colors[0].trim()) / 255f,
-                                    Integer.parseInt(colors[1].trim()) / 255f,
-                                    Integer.parseInt(colors[2].trim()) / 255f, 1f);
-            float size1 = background.getFloat("size1");
-            float size2 = background.getFloat("size2");
-            float shiftSpeed = background.getFloat("shiftSpeed");
-            float flowSpeed = background.getFloat("flowSpeed");
-            int frameRate = background.getInt("frameRate", 4);
-            float intensity = background.getFloat("intensity");
-            int resolution = background.getInt("resolution", 6);
-            this.background = new Background(color, size1, size2, shiftSpeed, flowSpeed, frameRate, intensity, resolution);
-        } else {
-            this.background = new Background();
+                    Integer.parseInt(colors[1].trim()) / 255f,
+                    Integer.parseInt(colors[2].trim()) / 255f, 1f);
+
+            if (type.equals("file")) {
+                String texture = background.get("texture").trim();
+
+                this.backgrounds[i] = new Background(Assets.getTexture(texture), color);
+            } else if (type.equals("nebula")) {
+                float size1 = background.getFloat("size1");
+                float size2 = background.getFloat("size2");
+                float shiftSpeed = background.getFloat("shiftSpeed");
+                float flowSpeed = background.getFloat("flowSpeed");
+                int frameRate = background.getInt("frameRate", 4);
+                float intensity = background.getFloat("intensity");
+                int resolution = background.getInt("resolution", 6);
+
+                this.backgrounds[i] = new NebulaBackground(color, size1, size2, shiftSpeed, flowSpeed, frameRate, intensity, resolution);
+            }
         }
 
         XmlReader.Element player = root.getChildByName("player");

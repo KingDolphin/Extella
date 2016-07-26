@@ -31,7 +31,7 @@ public class LevelUI {
     public LevelUI(final Skin skin, final Game game) {
         stage = new Stage(new ScreenViewport());
 
-        pauseButton = Utils.createButton("textures/UI/pause.png");
+        pauseButton = Utils.createButton("pauseButton");
         {
             pauseButton.addListener(new ClickListener() {
                 @Override

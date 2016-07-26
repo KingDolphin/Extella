@@ -40,7 +40,7 @@ public class LevelSelect {
     private Vector3[] positions;
 
     public LevelSelect(final Skin skin, final Game game) {
-        background = new Texture("textures/UI/stars.png");
+        background = Assets.getTexture("stars");
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -68,7 +68,7 @@ public class LevelSelect {
         // Create a new style for the galaxies for custom background image
         TextButton.TextButtonStyle tbStyle = new TextButton.TextButtonStyle();
         tbStyle.font = skin.getFont("default-font"); // set font
-        Texture galaxyTex = new Texture("textures/level_objects/galaxy.png");
+        Texture galaxyTex = Assets.getTexture("galaxy");
         tbStyle.up = new TextureRegionDrawable(new TextureRegion(galaxyTex)); // set background
 
         float galaxyW = Gdx.graphics.getWidth() / 8f;
@@ -102,7 +102,7 @@ public class LevelSelect {
         }
 
         // Create back button
-        ImageButton backButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("textures/UI/backArrow.png"))));
+        ImageButton backButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(Assets.getTexture("backArrow"))));
         backButton.setWidth(Gdx.graphics.getWidth() / 9);
         backButton.setHeight(Gdx.graphics.getHeight() / 9);
         backButton.setPosition(Gdx.graphics.getWidth() - backButton.getWidth() - 15, Gdx.graphics.getHeight() - backButton.getHeight() - 15);

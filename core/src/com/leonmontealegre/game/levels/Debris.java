@@ -6,10 +6,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.Assets;
 
 public class Debris {
 
-    private static Texture textures[] = {new Texture("textures/level_objects/debris1.png"), new Texture("textures/level_objects/debris2.png"), new Texture("textures/level_objects/debris3.png")};
+    private static Texture textures[] = {Assets.getTexture("debris1"), Assets.getTexture("debris2"), Assets.getTexture("debris3")};
 
     public Sprite sprite;
 

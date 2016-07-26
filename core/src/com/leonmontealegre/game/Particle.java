@@ -56,13 +56,11 @@ public class Particle {
             String name = root.get("name");
 
             XmlReader.Element textures = root.getChildByName("textures");
-            Array<XmlReader.Element> files = textures.getChildrenByName("file");
+            Array<XmlReader.Element> files = textures.getChildrenByName("texture");
             Texture[] texs = new Texture[files.size];
 
-            for (int i = 0; i < files.size; i++) {
-                texs[i] = new Texture(files.get(i).getText().trim());
-                texs[i].setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-            }
+            for (int i = 0; i < files.size; i++)
+                texs[i] = Assets.getTexture(files.get(i).getText().trim());
 
             PARTICLE_MAP.put(name, texs);
         } catch (IOException e) {

@@ -6,10 +6,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.Assets;
 
 public class Astronaut {
 
-    private static Texture tex1 = new Texture("textures/level_objects/astronaut.png");
+    private static Texture tex1 = Assets.getTexture("astronaut");
 
     public Sprite sprite;
 

@@ -1,0 +1,25 @@
+<assets>
+    <texture file="textures/UI/logo.png" key="logo"/>
+    <texture file="textures/UI/menuBackground.jpg" key="menuBackground"/>
+    <texture file="textures/UI/background.jpg" key="levelBackground"/>
+    <texture file="textures/UI/stars.png" key="stars"/>
+
+    <texture file="textures/UI/start.png" key="startButton"/>
+    <texture file="textures/UI/volumeOn.png" key="volumeOn"/>
+    <texture file="textures/UI/volumeOff.png" key="volumeOff"/>
+    <texture file="textures/UI/pause.png" key="pauseButton"/>
+    <texture file="textures/UI/options.png" key="optionsButton"/>
+    <texture file="textures/UI/backArrow.png" key="backArrow"/>
+
+    <texture file="textures/level_objects/galaxy.png" key="galaxy"/>
+    <texture file="textures/level_objects/planetRing.png" key="planetRing"/>
+
+    <texture file="textures/level_objects/astronaut.png" key="astronaut"/>
+    <texture file="textures/level_objects/debris1.png" key="debris1"/>
+    <texture file="textures/level_objects/debris2.png" key="debris2"/>
+    <texture file="textures/level_objects/debris3.png" key="debris3"/>
+    <texture file="textures/level_objects/finishFlag.png" key="finishFlag"/>
+    <texture file="textures/level_objects/planet01.png" key="planet1"/>
+    <texture file="textures/level_objects/planet02.png" key="planet2"/>
+    <texture file="textures/level_objects/spaceship.png" key="spaceship"/>
+</assets>

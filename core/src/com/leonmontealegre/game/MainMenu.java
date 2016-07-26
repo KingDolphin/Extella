@@ -28,14 +28,14 @@ public class MainMenu {
 
     public MainMenu(final Game game) {
         stage = new Stage(new ScreenViewport());
-        background = new Texture("textures/UI/menuBackground.jpg");
+        background = Assets.getTexture("menuBackground");
 
         table = new Table();
         table.pad(15f);
         table.setWidth(stage.getWidth());
         table.align(Align.center);
         {
-            startButton = Utils.createButton("textures/UI/start.png");
+            startButton = Utils.createButton("startButton");
             startButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -57,7 +57,7 @@ public class MainMenu {
         table2.align(Align.top);
         {
             float buttonWidth = Gdx.graphics.getWidth() * 2 / 7;
-            title = new Image(new Texture("textures/UI/logo.png"));
+            title = new Image(Assets.getTexture("logo"));
             table2.add(title).width(buttonWidth).height(buttonWidth * title.getHeight() / title.getWidth()).align(Align.center);
 
             table2.setPosition(0, Gdx.graphics.getHeight());
@@ -72,7 +72,7 @@ public class MainMenu {
         {
             float buttonSize = Gdx.graphics.getWidth() / 15;
 
-            soundButton = Utils.createCheckButton("textures/UI/volumeOn.png", "textures/UI/volumeOff.png");
+            soundButton = Utils.createCheckButton("volumeOn", "volumeOff");
             soundButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -101,7 +101,7 @@ public class MainMenu {
         {
             float buttonSize = Gdx.graphics.getWidth() / 15;
 
-            optionButtons = Utils.createButton("textures/UI/options.png");
+            optionButtons = Utils.createButton("optionsButton");
             optionButtons.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {

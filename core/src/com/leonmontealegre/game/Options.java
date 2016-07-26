@@ -28,9 +28,9 @@ public final class Options {
 		TITLE = settRoot.getChild(0).get("title");
 		TARGET_UPS = settRoot.getChild(1).getInt("target_ups");
 
-		astronautsRemainingText = langRoot.getChildByName("astronauts_remaining_text").getText();
-		winText = langRoot.getChildByName("win_text").getText();
-		tutorialText0 = langRoot.getChildByName("tutorial_text_0").getText();
+		astronautsRemainingText = langRoot.getChildByName("astronauts_remaining_text").getText().replace("\\n", "\n");
+		winText = langRoot.getChildByName("win_text").getText().replace("\\n", "\n");
+		tutorialText0 = langRoot.getChildByName("tutorial_text_0").getText().replace("\\n", "\n");
 	}
 	
 	private Options() {}

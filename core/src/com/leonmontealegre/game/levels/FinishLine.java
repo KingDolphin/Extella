@@ -5,10 +5,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.Assets;
 
 public class FinishLine {
 
-    private static Texture tex1 = new Texture("textures/level_objects/finishFlag.png");
+    private static Texture tex1 = Assets.getTexture("finishFlag");
 
     public Sprite sprite;
 

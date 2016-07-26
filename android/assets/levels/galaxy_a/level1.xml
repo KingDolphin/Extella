@@ -5,6 +5,11 @@
        zoom="1"
        displayTutorial="true">
    <background
+      type="file"
+      color="145 145 145"
+      texture="levelBackground"/>
+   <background
+      type="nebula"
       color="0 168 219"
       size1="10"
       size2="4"
@@ -13,6 +18,10 @@
       frameRate="2"
       intensity="3.65"
       resolution="14"/>
+   <background
+      type="file"
+      color="255 255 255"
+      texture="stars"/>
    <player
       x="0"
       y="0"/>

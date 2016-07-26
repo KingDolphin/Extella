@@ -1,8 +1,8 @@
 <particle id="1" name="Planet Particle">
 
-    <textures type="array">
+    <textures>
         <!--<color> 0, 0, 0 </color>-->
-        <file> textures/level_objects/planetRing.png </file>
+        <texture> planetRing </texture>
     </textures>
 
 </particle>

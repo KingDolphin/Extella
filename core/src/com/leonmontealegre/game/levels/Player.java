@@ -12,7 +12,7 @@ import com.leonmontealegre.game.*;
 
 public class Player {
 
-    public static final Texture tex = new Texture("textures/level_objects/spaceship.png");
+    public static final Texture tex = Assets.getTexture("spaceship");
 
     public Sprite sprite;
 

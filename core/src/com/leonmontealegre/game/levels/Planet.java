@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.Assets;
 import com.leonmontealegre.game.Options;
 import com.leonmontealegre.game.ParticleSystem;
 import com.leonmontealegre.utils.Input;
@@ -13,7 +14,7 @@ import com.leonmontealegre.utils.Touch;
 
 public class Planet {
 
-    protected static Texture tex1 = new Texture("textures/level_objects/planet01.png"), tex2 = new Texture("textures/level_objects/planet02.png");
+    protected static Texture tex1 = Assets.getTexture("planet1"), tex2 = Assets.getTexture("planet2");
 
     public Sprite sprite;
 

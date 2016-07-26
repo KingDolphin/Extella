@@ -64,6 +64,8 @@ public class Game extends ApplicationAdapter {
 		Logger.log(Gdx.gl.glGetString(GL20.GL_VERSION));
 		Logger.log(Gdx.graphics.getWidth() + ", " + Gdx.graphics.getHeight());
 
+		Assets.load();
+
 		Gdx.input.setCatchBackKey(true);
 		FileHandle particles = Gdx.files.internal("particle_systems/particles"); // Load all particles
 		for (FileHandle particle : particles.list())
@@ -110,7 +112,7 @@ public class Game extends ApplicationAdapter {
 
 		currentState = State.Menu;
 
-		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/spaceMusic.wav"));
+		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/ExtellaTheme.mp3"));
 		backgroundMusic.setLooping(true);
 		backgroundMusic.setVolume(0.25f);
 
