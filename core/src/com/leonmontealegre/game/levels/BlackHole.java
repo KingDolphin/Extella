@@ -13,7 +13,7 @@ public class BlackHole extends Planet {
 
     static {
         ShaderProgram.pedantic = false;
-        shader = new ShaderProgram(Gdx.files.internal("shaders/blackHoleTest.vert"), Gdx.files.internal("shaders/blackHoleTest.frag"));
+        shader = new ShaderProgram(Gdx.files.internal("shaders/pass.vert"), Gdx.files.internal("shaders/blackHole.frag"));
         System.err.println(shader.getLog());
     }
 

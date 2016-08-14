@@ -27,4 +27,6 @@ public class Background {
         batch.draw(texture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
+    public void dispose() {}
+
 }

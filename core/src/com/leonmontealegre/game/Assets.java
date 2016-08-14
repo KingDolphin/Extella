@@ -14,6 +14,7 @@ public class Assets {
     private static final Map<String, Texture> textures = new HashMap<String, Texture>();
 
     public static void load() {
+        Explosion.load();
         try {
             XmlReader reader = new XmlReader();
             XmlReader.Element assets = reader.parse(Gdx.files.internal("XML/assets.xml"));
@@ -23,7 +24,7 @@ public class Assets {
                 Texture texture = new Texture(tex.get("file"));
                 String key = tex.get("key");
                 texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-                texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+                texture.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
                 textures.put(key, texture);
             }
         } catch (IOException e) {

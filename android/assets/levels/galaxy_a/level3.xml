@@ -4,23 +4,9 @@
        y="0.3"
        zoom="1">
    <background
-       type="file"
-       color="145 145 145"
-       texture="levelBackground"/>
-   <background
-       type="nebula"
-       color="0 144 234"
-       size1="10"
-       size2="4"
-       shiftSpeed="0.0097"
-       flowSpeed="0.013"
-       frameRate="2"
-       intensity="2.45"
-       resolution="14"/>
-   <background
-       type="file"
+       type="dynamic"
        color="255 255 255"
-       texture="stars"/>
+       texture="levelBackground"/>
    <player
       x="0"
       y="0"/>

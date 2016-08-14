@@ -1,11 +1,11 @@
-<level name="Level 10"
+<level name="Level 11"
        type="FinishLine"
        x="0.5"
        y="0.5"
        zoom="1.25">
     <background
-        type="dynamic"
-        color="255 255 255"
+        type="file"
+        color="145 145 145"
         texture="levelBackground"/>
     <background
         type="file"
@@ -15,14 +15,6 @@
         x="50"
         y="50"/>
     <planet
-        x="750"
-        y="300"
-        radius="75"/>
-    <planet
-        x="300"
-        y="750"
-        radius="50"/>
-    <planet
         x="900"
         y="550"
         radius="60"/>
@@ -31,10 +23,10 @@
         y="450"
         radius="180"/>
     <black_hole
-        x="1000"
-        y="1000"
-        radius="25"
-        deform_radius="215"/>
+        x="0"
+        y="1300"
+        radius="700"
+        deform_radius="950"/>
     <finish
         x="2000"
         y="500"

@@ -8,7 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -18,15 +20,14 @@ public class MainMenu {
 
     public Stage stage;
     public Table table, table2, table3, table4;
-    public Button startButton;
     public Button soundButton;
-    private Button optionButtons;
+    private Button optionsButton;
 
     public Texture background;
 
     public Image title;
 
-    public MainMenu(final Game game) {
+    public MainMenu(final Skin skin, final Game game) {
         stage = new Stage(new ScreenViewport());
         background = Assets.getTexture("menuBackground");
 
@@ -35,13 +36,14 @@ public class MainMenu {
         table.setWidth(stage.getWidth());
         table.align(Align.center);
         {
-            startButton = Utils.createButton("startButton");
+            TextButton startButton = new TextButton("Start", skin);
             startButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     game.setCurrentState(Game.State.LevelSelect);
                 }
             });
+            startButton.getLabel().setColor(0, 0, 0, 1);
 
             float buttonWidth = Gdx.graphics.getWidth() / 7;
             table.add(startButton).width(buttonWidth).height(buttonWidth * 0.4f).pad(5f);
@@ -101,15 +103,15 @@ public class MainMenu {
         {
             float buttonSize = Gdx.graphics.getWidth() / 15;
 
-            optionButtons = Utils.createButton("optionsButton");
-            optionButtons.addListener(new ClickListener() {
+            optionsButton = Utils.createButton("optionsButton");
+            optionsButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     // do something eventually
                 }
             });
 
-            table4.add(optionButtons).width(buttonSize).height(buttonSize);
+            table4.add(optionsButton).width(buttonSize).height(buttonSize);
 
             table4.setPosition(0, Gdx.graphics.getHeight());
         }

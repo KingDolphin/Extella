@@ -13,6 +13,10 @@
         frameRate="2"
         intensity="3.65"
         resolution="14"/>
+    <background
+        type="file"
+        color="255 255 255"
+        texture="stars"/>
 <player
     x="0"
     y="0"/>

@@ -4,7 +4,6 @@
     <texture file="textures/UI/background.jpg" key="levelBackground"/>
     <texture file="textures/UI/stars.png" key="stars"/>
 
-    <texture file="textures/UI/start.png" key="startButton"/>
     <texture file="textures/UI/volumeOn.png" key="volumeOn"/>
     <texture file="textures/UI/volumeOff.png" key="volumeOff"/>
     <texture file="textures/UI/pause.png" key="pauseButton"/>

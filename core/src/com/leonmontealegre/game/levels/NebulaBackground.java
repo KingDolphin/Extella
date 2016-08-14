@@ -68,6 +68,8 @@ public class NebulaBackground extends Background {
         }
         texture = new Texture(map);
         texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        map.dispose();
     }
 
 }

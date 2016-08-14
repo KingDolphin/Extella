@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -18,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.XmlReader;
 import com.leonmontealegre.game.levels.Level;
+import com.leonmontealegre.utils.FrameBufferManager;
 import com.leonmontealegre.utils.Logger;
 
 import java.io.IOException;
@@ -46,7 +46,6 @@ public class Galaxy extends Table {
         int bufWidth = bufSize * Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
         int bufHeight = bufSize;
         FrameBuffer buffer = new FrameBuffer(Pixmap.Format.RGB888, bufWidth, bufHeight, false);
-        SpriteBatch batch = new SpriteBatch();
         for (int y = 0; y < levels[0].length; y++) {
             for (int x = 0; x < levels.length; x++) {
                 final String level = levels[x][y];
@@ -68,18 +67,15 @@ public class Galaxy extends Table {
                     boolean log = Logger.debug;
                     Logger.debug = false;
                     Level lev = game.loadLevel(this, x, y, level);
-                    buffer.begin();
+                    FrameBufferManager.begin(buffer);
 
                     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-                    batch.setProjectionMatrix(game.uiCamera.combined);
-                    lev.drawBackground(batch);
-                    batch.setProjectionMatrix(game.camera.combined);
-                    lev.render(batch);
+                    game.renderLevel(lev);
 
                     Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, buffer.getWidth(), buffer.getHeight());
 
-                    buffer.end();
+                    FrameBufferManager.end();
                     Logger.debug = log;
 
                     TextureRegion texReg = new TextureRegion(new Texture(pixmap));
@@ -87,6 +83,7 @@ public class Galaxy extends Table {
                     texReg.flip(false, true);
                     tbs.up = new TextureRegionDrawable(texReg);
 
+                    lev.dispose();
                     pixmap.dispose();
                 } else {
                     button.setDisabled(true);
@@ -98,7 +95,6 @@ public class Galaxy extends Table {
         }
         this.add(scrollPaneA);
 
-        batch.dispose();
         buffer.dispose();
     }
 

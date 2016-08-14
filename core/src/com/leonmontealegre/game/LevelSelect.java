@@ -113,6 +113,11 @@ public class LevelSelect {
             }
         });
         stage.addActor(backButton);
+
+        camera.position.set(scrollPane.getScrollX()/2f + Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight() - scrollPane.getScrollY()/2f, camera.position.z);
+        camera.update();
+        for (int i = 0; i < positions.length; i++)
+            positions[i] = camera.position.cpy();
     }
 
     private TextButton createButton(String text, float x, float y, float w, float h, final Galaxy galaxy, TextButton.TextButtonStyle skin, float gHeight) {
@@ -138,7 +143,7 @@ public class LevelSelect {
             Logger.log("back");
         }
 
-        camera.position.set(scrollPane.getScrollX()/2f + scrollPane.getMaxX()/2f, scrollPane.getMaxY() - scrollPane.getScrollY()/2f, camera.position.z);
+        camera.position.set(scrollPane.getScrollX()/2f + Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight() - scrollPane.getScrollY()/2f, camera.position.z);
         camera.update();
 
         positions[time] = camera.position.cpy();
@@ -150,14 +155,12 @@ public class LevelSelect {
     public void render(SpriteBatch batch) {
         for (int i = 0; i < positions.length; i++) {
             int t = (time + i) % positions.length;
-            if (positions[t] != null) {
-                camera.position.set(positions[t].cpy());
-                camera.update();
-                batch.setProjectionMatrix(camera.combined);
-                batch.begin();
-                batch.draw(background, 0, 0, 1.55f*Gdx.graphics.getWidth(), 1.55f*Gdx.graphics.getHeight());
-                batch.end();
-            }
+            camera.position.set(positions[t].cpy());
+            camera.update();
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+            batch.draw(background, 0, 0, 1.55f*Gdx.graphics.getWidth(), 1.55f*Gdx.graphics.getHeight());
+            batch.end();
         }
 
         stage.act(Gdx.graphics.getDeltaTime());

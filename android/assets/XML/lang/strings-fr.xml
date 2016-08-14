@@ -1,9 +1,5 @@
 <strings>
     <astronauts_remaining_text>Les astronautes restant : </astronauts_remaining_text>
     <win_text>Vous gagnez!</win_text>
-    <tutorial_text_0>Cliquez sur les planètes
-        pour transformer leur gravité
-        sur et en dehors et essayer
-        de se rendre à
-        la ligne d'arrivée</tutorial_text_0>
+    <tutorial_text_0>Cliquez sur les planètes\npour transformer leur gravité\nsur et en dehors et essayer\nde se rendre à\nla ligne d'arrivée</tutorial_text_0>
 </strings>

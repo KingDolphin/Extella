@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.leonmontealegre.game.levels.Level;
 import com.leonmontealegre.utils.Utils;
 
 public class LevelUI {
@@ -55,119 +54,9 @@ public class LevelUI {
         }
         stage.addActor(pauseButton);
 
-        pauseMenuTable = new Table();
-        {
-            pauseMenuTable.pad(5f);
-            pauseMenuTable.setHeight(stage.getHeight());
-            pauseMenuTable.setWidth(stage.getWidth());
-            pauseMenuTable.align(Align.center);
-            float buttonWidth = pauseMenuTable.getWidth() * 2 / 3, buttonHeight = pauseMenuTable.getHeight() / 5;
+        pauseMenuTable = new PauseMenu(stage, skin, game);
 
-            TextButton resumeButton = new TextButton("Resume", skin);
-            {
-                resumeButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        if (game.getLevel() != null) {
-                            game.getLevel().resume();
-                            pauseMenuTable.setVisible(false);
-                        }
-                    }
-                });
-                resumeButton.getLabel().setColor(0, 0, 0, 1);
-            }
-            pauseMenuTable.add(resumeButton).width(buttonWidth).height(buttonHeight - 6).pad(2);
-            pauseMenuTable.row();
-
-            TextButton restartButton = new TextButton("Restart", skin);
-            {
-                restartButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        if (game.getLevel() != null) {
-                            game.getLevel().restart();
-                            pauseMenuTable.setVisible(false);
-                        }
-                    }
-                });
-                restartButton.getLabel().setColor(0, 0, 0, 1);
-            }
-            pauseMenuTable.add(restartButton).width(buttonWidth).height(buttonHeight - 6).pad(2);
-            pauseMenuTable.row();
-
-            TextButton backToMenuButton = new TextButton("Back to Menu", skin);
-            {
-                backToMenuButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        game.finishLevel();
-                    }
-                });
-                backToMenuButton.getLabel().setColor(0, 0, 0, 1);
-            }
-            pauseMenuTable.add(backToMenuButton).width(buttonWidth).height(buttonHeight - 6).pad(2);
-        }
-        stage.addActor(pauseMenuTable);
-
-
-        winTable = new Table();
-        {
-            winTable.pad(5f);
-            winTable.setHeight(stage.getHeight());
-            winTable.setWidth(stage.getWidth());
-            winTable.align(Align.center);
-            float buttonWidth = winTable.getWidth() * 2 / 3, buttonHeight = winTable.getHeight() / 5;
-
-            TextButton nextLevelButton = new TextButton("Next Level", skin);
-            {
-                nextLevelButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        Level lev = game.getLevel();
-                        if (lev != null) {
-                            int xx = (lev.x + 1) % lev.galaxy.getHorizontalLevels();
-                            int yy = lev.y + (lev.x + 1) / lev.galaxy.getHorizontalLevels();
-                            String nextLevel = lev.galaxy.getLevel(xx, yy);
-                            if (nextLevel != null)
-                                game.startLevel(lev.galaxy, xx, yy, nextLevel);
-                        }
-                    }
-                });
-                nextLevelButton.getLabel().setColor(0, 0, 0, 1);
-            }
-            winTable.add(nextLevelButton).width(buttonWidth).height(buttonHeight - 6).pad(2);
-            winTable.row();
-
-            TextButton restartButton = new TextButton("Restart", skin);
-            {
-                restartButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        if (game.getLevel() != null) {
-                            game.getLevel().restart();
-                            winTable.setVisible(false);
-                        }
-                    }
-                });
-                restartButton.getLabel().setColor(0, 0, 0, 1);
-            }
-            winTable.add(restartButton).width(buttonWidth).height(buttonHeight - 6).pad(2);
-            winTable.row();
-
-            TextButton backToMenuButton = new TextButton("Back to Menu", skin);
-            {
-                backToMenuButton.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        game.finishLevel();
-                    }
-                });
-                backToMenuButton.getLabel().setColor(0, 0, 0, 1);
-            }
-            winTable.add(backToMenuButton).width(buttonWidth).height(buttonHeight - 6).pad(2);
-        }
-        stage.addActor(winTable);
-
+        winTable = new WinScreen(stage, skin, game);
 
         loseTable = new Table();
         {
@@ -309,6 +198,7 @@ public class LevelUI {
 
     public void setVisible(boolean b) {
         pauseButton.setVisible(b);
+
         pauseMenuTable.setVisible(false);
         winTable.setVisible(false);
         loseTable.setVisible(false);

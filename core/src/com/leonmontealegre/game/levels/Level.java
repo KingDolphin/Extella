@@ -50,6 +50,9 @@ public class Level {
 
     protected Background[] backgrounds;
 
+    public int time = 0;
+    public boolean deathAfterWin = false;
+
     public Level(Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
         this.galaxy = galaxy;
         this.x = x;
@@ -74,6 +77,8 @@ public class Level {
     }
 
     public void restart() {
+        time = 0;
+        deathAfterWin = false;
         hasWon = false;
         paused = false;
         player = new Player(startPos);
@@ -100,6 +105,9 @@ public class Level {
     }
 
     public void update() {
+        if (!hasWon)
+            time++;
+
         for (Planet planet : planets) {
             planet.update();
 
@@ -125,6 +133,8 @@ public class Level {
 
                 if (!hasWon)
                     ui.showLoseScreen();
+                else
+                    deathAfterWin = true;
             }
         }
 
@@ -144,8 +154,8 @@ public class Level {
     public void win() {
         if (!hasWon) {
             hasWon = true;
-            ui.winOverlay.setVisible(true);
-            Options.TARGET_UPS /= 4;
+            ui.winOverlay.setVisible(true); // "You win!" text
+            Options.TARGET_UPS /= 4; // Slow motion
         }
     }
 
@@ -211,6 +221,11 @@ public class Level {
             sr.polygon(player.getPolygon().getTransformedVertices());
     }
 
+    public void dispose() {
+        for (Background bg : backgrounds)
+            bg.dispose();
+    }
+
     protected void load(XmlReader.Element root) {
         displayHelp = root.getBoolean("displayTutorial", false);
         ui.helpOverlay.setVisible(displayHelp);
@@ -246,6 +261,10 @@ public class Level {
                 int resolution = background.getInt("resolution", 6);
 
                 this.backgrounds[i] = new NebulaBackground(color, size1, size2, shiftSpeed, flowSpeed, frameRate, intensity, resolution);
+            } else if (type.equals("dynamic")) {
+                String texture = background.get("texture").trim();
+
+                this.backgrounds[i] = new DynamicSpaceBackground(Assets.getTexture(texture), color);
             }
         }
 
