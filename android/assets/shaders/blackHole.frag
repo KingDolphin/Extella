@@ -4,7 +4,7 @@ precision lowp float;
 
 uniform sampler2D u_sampler2D;
 
-varying float v_color;
+varying vec4 v_color;
 varying vec2 v_texCoords;
 
 struct BlackHole {

@@ -10,6 +10,11 @@
     <texture file="textures/UI/options.png" key="optionsButton"/>
     <texture file="textures/UI/backArrow.png" key="backArrow"/>
 
+    <texture file="textures/UI/fastForwardIcon.png" key="fastForwardIcon"/>
+    <texture file="textures/UI/levelSelectionIcon.png" key="levelSelectionIcon"/>
+    <texture file="textures/UI/replayIcon.png" key="replayIcon"/>
+    <texture file="textures/UI/starIcon.png" key="starIcon"/>
+
     <texture file="textures/level_objects/galaxy.png" key="galaxy"/>
     <texture file="textures/level_objects/planetRing.png" key="planetRing"/>
 

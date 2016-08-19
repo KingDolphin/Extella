@@ -11,4 +11,5 @@
     <level x="2" y="1" file="levels/galaxy_a/level10.xml"/>
     <level x="3" y="1" file="levels/galaxy_a/level11.xml"/>
     <level x="4" y="1" file="levels/galaxy_a/level12.xml"/>
+    <level x="5" y="1" file="levels/galaxy_a/level13.xml"/>
 </galaxy>

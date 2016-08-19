@@ -26,7 +26,7 @@ public class DynamicSpaceBackground extends Background {
 
     public DynamicSpaceBackground(Texture texture,  Color color) {
         super(texture, color);
-        buffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4, false);
+        buffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth()/3, Gdx.graphics.getHeight()/3, false);
         buffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         cam = new OrthographicCamera();

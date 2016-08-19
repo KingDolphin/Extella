@@ -20,7 +20,7 @@ public class LevelUI {
     private Button pauseButton;
 
     private Table pauseMenuTable;
-    private Table winTable;
+    private WinScreen winTable;
     private Table loseTable;
 
     public Label winOverlay, astronautsLabel, helpOverlay;
@@ -142,21 +142,8 @@ public class LevelUI {
             @Override
             public synchronized void run() {
                 winOverlay.setVisible(false);
-                winTable.setVisible(true);
-                final float endY = winTable.getY();
 
-                try {
-                    winTable.setY(winTable.getHeight());
-                    float y = winTable.getHeight();
-                    while (y > endY) {
-                        winTable.setY(y);
-                        y -= 30;
-                        Thread.sleep(10);
-                    }
-                    winTable.setY(endY);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                winTable.show();
             }
         }).start();
     }
