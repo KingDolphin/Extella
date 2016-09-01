@@ -1,20 +1,19 @@
 package com.leonmontealegre.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.leonmontealegre.utils.GifDecoder;
 
 public class Explosion {
 
-    private static Animation animation;
+    private Animation animation;
 
     private Vector2 pos, size;
 
     private float time;
 
-    public Explosion(Vector2 pos, Vector2 size) {
+    public Explosion(Assets assets, Vector2 pos, Vector2 size) {
+        this.animation = assets.getExplosionAnimation();
         this.pos = pos;
         this.size = size;
     }
@@ -25,10 +24,6 @@ public class Explosion {
 
     public void render(SpriteBatch batch) {
         batch.draw(animation.getKeyFrame(time), pos.x, pos.y, size.x, size.y);
-    }
-
-    public static void load() {
-        animation = GifDecoder.loadGIFAnimation(Animation.PlayMode.NORMAL, Gdx.files.internal("textures/level_objects/explosion.gif").read());
     }
 
 }

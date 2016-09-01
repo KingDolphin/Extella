@@ -11,12 +11,15 @@ public class Touch {
 
     public final int pointer, button;
 
+    private int lifeTime;
+
     public Touch(int x, int y, int pointer, int button) {
         this.move(x, y);
         this.pointer = pointer;
         this.button = button;
         this.firstPressed = true;
         this.released = false;
+        this.lifeTime = 0;
     }
 
     public void move(int x, int y) {
@@ -29,6 +32,7 @@ public class Touch {
 
     public void update() {
         this.firstPressed = false;
+        this.lifeTime++;
     }
 
     public boolean isFirstPressed() {
@@ -37,6 +41,10 @@ public class Touch {
 
     public boolean isReleased() {
         return this.released;
+    }
+
+    public int getLifeTime() {
+        return lifeTime;
     }
 
 }

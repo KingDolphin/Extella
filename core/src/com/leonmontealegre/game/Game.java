@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -23,8 +22,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.XmlReader;
 import com.leonmontealegre.game.levels.BlackHole;
 import com.leonmontealegre.game.levels.CollectAstronautsLevel;
+import com.leonmontealegre.game.levels.InfiniteAstronautLevel;
 import com.leonmontealegre.game.levels.Level;
-import com.leonmontealegre.game.levels.ReachFinishLevel;
+import com.leonmontealegre.game.levels.FinishLineLevel;
 import com.leonmontealegre.utils.FrameBufferManager;
 import com.leonmontealegre.utils.Input;
 import com.leonmontealegre.utils.Logger;
@@ -54,12 +54,15 @@ public class Game extends ApplicationAdapter {
 	private MainMenu menu;
 	private LevelSelect levelSelect;
 	private LevelUI levelUI;
+	private InfiniteLevelMenu infiniteLevelMenu;
 
 	public Music backgroundMusic;
 	public Preferences prefs;
 
 	private FrameBuffer screenBuffer;
 	private TextureRegion bufferRegion;
+
+	private Assets assets;
 	
 	@Override
 	public void create () {
@@ -67,15 +70,13 @@ public class Game extends ApplicationAdapter {
 		Logger.log(Gdx.graphics.getWidth() + ", " + Gdx.graphics.getHeight());
 
 		// Load Assets
-		Assets.load();
+		assets = new Assets();
+
+		// Retrieve prefs
+		prefs = Gdx.app.getPreferences("Prefs");
 
 		// Prevents pressing of 'back' key on android
 		Gdx.input.setCatchBackKey(true);
-
-		// Load all particles
-		FileHandle particles = Gdx.files.internal("particle_systems/particles");
-		for (FileHandle particle : particles.list())
-			Particle.load(particle.path());
 
 		// Setup font
 		skin = new Skin();
@@ -117,9 +118,10 @@ public class Game extends ApplicationAdapter {
 		bufferRegion.flip(false, true);
 
 		// Create other scenes/UI objects
-		levelUI = new LevelUI(skin, this);
-		menu = new MainMenu(skin, this);
-		levelSelect = new LevelSelect(skin, this);
+		levelUI = new LevelUI(assets, skin, this);
+		menu = new MainMenu(assets, skin, this);
+		levelSelect = new LevelSelect(assets, skin, this);
+		infiniteLevelMenu = new InfiniteLevelMenu(assets, skin, this);
 
 		// Setup input for all stages
 		GestureDetector gestureDetector = new GestureDetector(20, 0.5f, 2, 0.15f, Input.gestureInstance);
@@ -127,6 +129,7 @@ public class Game extends ApplicationAdapter {
 		inputMultiplexer.addProcessor(levelUI.stage);
 		inputMultiplexer.addProcessor(menu.stage);
 		inputMultiplexer.addProcessor(levelSelect.stage);
+		inputMultiplexer.addProcessor(infiniteLevelMenu.stage);
 		inputMultiplexer.addProcessor(Input.instance);
 		inputMultiplexer.addProcessor(gestureDetector);
 		Gdx.input.setInputProcessor(inputMultiplexer);
@@ -139,16 +142,30 @@ public class Game extends ApplicationAdapter {
 		backgroundMusic.setVolume(0.25f);
 
 		// Load preferences
-		prefs = Gdx.app.getPreferences("Prefs");
 		if (prefs.getBoolean("soundOn", true))
 			backgroundMusic.play();
 		else
 			menu.soundButton.setChecked(true);
 	}
 
+	public void startInfiniteLevel() {
+		setCurrentState(State.Playing);
+		Logger.log("Starting new level...");
+		if (level != null)
+			level = null;
+		level = new InfiniteAstronautLevel(assets, levelUI, camera);
+		initialScale = camera.zoom;
+	}
+
 	public void startLevel(Galaxy galaxy, int x, int y, String file) {
 		setCurrentState(State.Playing);
+		if (level != null) {
+			Logger.log("Starting new level...");
+			level = null;
+		}
 		level = loadLevel(galaxy, x, y, file);
+		initialScale = camera.zoom;
+		Logger.log("CAMERA ZOOM : " + camera.zoom);
 	}
 
 	public Level loadLevel(Galaxy galaxy, int x, int y, String file) {
@@ -158,9 +175,9 @@ public class Game extends ApplicationAdapter {
 
 			String type = root.get("type");
 			if (type.equals("FinishLine")) {
-				return new ReachFinishLevel(galaxy, x, y, levelUI, camera, root);
+				return new FinishLineLevel(assets, galaxy, x, y, levelUI, camera, root);
 			} else if (type.equals("CollectAstronauts")) {
-				return new CollectAstronautsLevel(galaxy, x, y, levelUI, camera, root);
+				return new CollectAstronautsLevel(assets, galaxy, x, y, levelUI, camera, root);
 			} else {
 				return null;
 			}
@@ -185,14 +202,16 @@ public class Game extends ApplicationAdapter {
 		if (!level.isPaused()) {
 			level.update();
 			if (!level.hasWon) {
-				if (Input.isTouchDown())
-					initialScale = camera.zoom;
+				if (level.hasStarted()) {
+					if (Input.isTouchDown())
+						initialScale = camera.zoom;
 
-				if (Input.getZoom() > 0)
-					camera.zoom = initialScale * Input.getZoom();
+					if (Input.getZoom() > 0)
+						camera.zoom = initialScale * Input.getZoom();
 
-				if (!Input.getPan().isZero())
-					camera.translate(-camera.zoom * Input.getPan().x, camera.zoom * Input.getPan().y);
+					if (!Input.getPan().isZero())
+						camera.translate(-camera.zoom * Input.getPan().x, camera.zoom * Input.getPan().y);
+				}
 			} else {
 				winTimer++;
 				if (winTimer >= Options.TARGET_UPS * 4) { // 4 seconds have passed
@@ -222,7 +241,12 @@ public class Game extends ApplicationAdapter {
 
 			batch.setProjectionMatrix(uiCamera.combined);
 			levelSelect.render(batch);
-		} else if (currentState == State.Playing) {
+		} else if (currentState == State.InfiniteLevelMenu) {
+			infiniteLevelMenu.update();
+
+			batch.setProjectionMatrix(uiCamera.combined);
+			infiniteLevelMenu.render(batch);
+		} else if (currentState == State.Playing || currentState == State.Paused) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
@@ -306,7 +330,15 @@ public class Game extends ApplicationAdapter {
 		super.pause();
 	}
 
+	@Override
+	public void dispose() {
+		batch.dispose();
+		bgBatch.dispose();
+		uiBatch.dispose();
+	}
+
 	public void setCurrentState(State state) {
+		State prevState = currentState;
 		this.currentState = state;
 
 		Gdx.graphics.setContinuousRendering(false);
@@ -314,20 +346,34 @@ public class Game extends ApplicationAdapter {
 			menu.setVisible(true);
 			levelSelect.setVisible(false);
 			levelUI.setVisible(false);
+			infiniteLevelMenu.setVisible(false, false);
 		} else if (state == State.LevelSelect) {
 			levelSelect.setVisible(true);
 			menu.setVisible(false);
 			levelUI.setVisible(false);
-		} else if (state == State.Playing) {
+			infiniteLevelMenu.setVisible(false, false);
+		} else if (state == State.InfiniteLevelMenu) {
+			levelSelect.setVisible(false);
+			menu.setVisible(false);
+			levelUI.setVisible(false);
+			infiniteLevelMenu.setVisible(true, prevState != State.Playing);
+		}else if (state == State.Playing) {
 			levelUI.setVisible(true);
 			levelSelect.setVisible(false);
 			menu.setVisible(false);
+			infiniteLevelMenu.setVisible(false, false);
+
+			if (level != null && level.isPaused())
+				level.resume();
 
 			timer = System.currentTimeMillis();
 			lastTime = System.nanoTime();
 			updates = frames = 0;
 			delta = 0;
 			Gdx.graphics.setContinuousRendering(true);
+		} else if (state == State.Paused) {
+			if (level != null && !level.isPaused())
+				level.pause();
 		}
 	}
 
@@ -346,6 +392,8 @@ public class Game extends ApplicationAdapter {
 	enum State {
 		Menu,
 		LevelSelect,
-		Playing
+		InfiniteLevelMenu,
+		Playing,
+		Paused
 	}
 }

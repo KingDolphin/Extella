@@ -12,6 +12,7 @@ public final class Options {
 	public static int TARGET_UPS;
 
 	public static final String astronautsRemainingText;
+	public static final String astronautsCollectedText;
 	public static final String winText;
 	public static final String tutorialText0;
 	public static final String levelCompleteText;
@@ -30,6 +31,7 @@ public final class Options {
 		TARGET_UPS = settRoot.getChild(1).getInt("target_ups");
 
 		astronautsRemainingText = langRoot.getChildByName("astronauts_remaining_text").getText().replace("\\n", "\n");
+		astronautsCollectedText = langRoot.getChildByName("astronauts_collected_text").getText().replace("\\n", "\n");
 		winText = langRoot.getChildByName("win_text").getText().replace("\\n", "\n");
 		tutorialText0 = langRoot.getChildByName("tutorial_text_0").getText().replace("\\n", "\n");
 		levelCompleteText = langRoot.getChildByName("level_complete_text").getText().replace("\\n", "\n");

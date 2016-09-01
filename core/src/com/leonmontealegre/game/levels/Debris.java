@@ -1,6 +1,5 @@
 package com.leonmontealegre.game.levels;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
@@ -10,7 +9,7 @@ import com.leonmontealegre.game.Assets;
 
 public class Debris {
 
-    private static Texture textures[] = {Assets.getTexture("debris1"), Assets.getTexture("debris2"), Assets.getTexture("debris3")};
+    private static String textures[] = {"debris1", "debris2", "debris3"};
 
     public Sprite sprite;
 
@@ -24,13 +23,13 @@ public class Debris {
 
     private float speed;
 
-    public Debris(Level level, Vector2 pos, int radius) {
+    public Debris(Assets assets, Level level, Vector2 pos, int radius) {
         this.level = level;
         this.position = pos;
         this.radius = radius;
         this.speed = MathUtils.random(-0.5f, 0.5f);
 
-        sprite = new Sprite(textures[(int)(MathUtils.random()*textures.length)]);
+        sprite = new Sprite(assets.getTexture(textures[(int)(MathUtils.random()*textures.length)]));
         sprite.setScale(2 * radius / sprite.getTexture().getWidth(), 2 * radius / sprite.getTexture().getHeight());
         sprite.setPosition(position.x, position.y);
 

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.XmlReader;
+import com.leonmontealegre.game.Assets;
 import com.leonmontealegre.game.Galaxy;
 import com.leonmontealegre.game.LevelUI;
 import com.leonmontealegre.game.Options;
@@ -16,16 +17,17 @@ import java.util.Queue;
 
 public class CollectAstronautsLevel extends Level {
 
-    private List<Astronaut> astronauts;
-    private Queue<Astronaut> rescuedAstronauts;
+    protected List<Astronaut> astronauts;
+    protected Queue<Astronaut> rescuedAstronauts;
 
-    private int astronautsRemaining;
+    protected int astronautsRemaining;
 
-    public CollectAstronautsLevel(Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
-        super(galaxy, x, y, ui, camera, root);
+    public CollectAstronautsLevel(Assets assets, Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
+        super(assets, galaxy, x, y, ui, camera, root);
 
         rescuedAstronauts = new LinkedList<Astronaut>();
-        astronautsRemaining = astronauts.size();
+        if (astronauts != null)
+            astronautsRemaining = astronauts.size();
         ui.astronautsLabel.setVisible(true);
         ui.astronautsLabel.setText(Options.astronautsRemainingText + astronautsRemaining);
     }
@@ -74,7 +76,7 @@ public class CollectAstronautsLevel extends Level {
         for (XmlReader.Element naut : nauts) {
             Vector2 pos = new Vector2(naut.getInt("x"), naut.getInt("y"));
             int radius = naut.getInt("radius");
-            astronauts.add(new Astronaut(this, pos, radius));
+            astronauts.add(new Astronaut(assets, this, pos, radius));
         }
 
         super.load(root);

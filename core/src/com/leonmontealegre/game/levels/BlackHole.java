@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
+import com.leonmontealegre.game.Assets;
 
 public class BlackHole extends Planet {
 
@@ -21,8 +22,8 @@ public class BlackHole extends Planet {
 
     public float deformRadius;
 
-    public BlackHole(Level level, Vector2 position, float radius, float deformRadius) {
-        super(level, position, radius, 0);
+    public BlackHole(Assets assets, Level level, Vector2 position, float radius, float deformRadius) {
+        super(assets, level, position, radius, 0);
         this.force *= 10;
         this.deformRadius = deformRadius;
 
@@ -31,7 +32,7 @@ public class BlackHole extends Planet {
 
         shader.setUniformf("blackHole[" + count + "].radius", radius);
         shader.setUniformf("blackHole[" + count + "].deformRadius", deformRadius);
-        shader.setUniformf("blackHole[" + count + "].position", position);
+        shader.setUniformf("blackHole[" + count + "].position", new Vector2(circle.x, circle.y));
 
         count++;
     }

@@ -1,6 +1,5 @@
 package com.leonmontealegre.game.levels;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
@@ -9,8 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.leonmontealegre.game.Assets;
 
 public class Astronaut {
-
-    private static Texture tex1 = Assets.getTexture("astronaut");
 
     public Sprite sprite;
 
@@ -24,14 +21,14 @@ public class Astronaut {
 
     private float speed;
 
-    public Astronaut(CollectAstronautsLevel level, Vector2 pos, int radius) {
+    public Astronaut(Assets assets, CollectAstronautsLevel level, Vector2 pos, int radius) {
         this.level = level;
         this.position = pos;
         this.radius = radius;
         this.speed = MathUtils.random(-0.5f, 0.5f);
 
-        sprite = new Sprite(tex1);
-        sprite.setScale(2 * radius / tex1.getWidth(), 2 * radius / tex1.getHeight());
+        sprite = new Sprite(assets.getTexture("astronaut"));
+        sprite.setScale(2 * radius / sprite.getTexture().getWidth(), 2 * radius / sprite.getTexture().getHeight());
         sprite.setPosition(position.x, position.y);
 
         circle = new Circle(position.x + sprite.getWidth() / 2, position.y + sprite.getHeight() / 2, radius);
@@ -47,6 +44,10 @@ public class Astronaut {
 
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
+    }
+
+    public Vector2 getPosition() {
+        return this.position.cpy();
     }
 
 }

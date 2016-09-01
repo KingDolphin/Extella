@@ -17,6 +17,8 @@ public class LevelUI {
 
     public Stage stage;
 
+    private Game game;
+
     private Button pauseButton;
 
     private Table pauseMenuTable;
@@ -27,10 +29,11 @@ public class LevelUI {
 
     private boolean losing = false;
 
-    public LevelUI(final Skin skin, final Game game) {
+    public LevelUI(final Assets assets, final Skin skin, final Game game) {
+        this.game = game;
         stage = new Stage(new ScreenViewport());
 
-        pauseButton = Utils.createButton("pauseButton");
+        pauseButton = Utils.createButton(assets.getTexture("pauseButton"));
         {
             pauseButton.addListener(new ClickListener() {
                 @Override
@@ -38,10 +41,10 @@ public class LevelUI {
                     if (game.getLevel() != null && !game.getLevel().hasWon && !losing && !loseTable.isVisible()) {
                         helpOverlay.setVisible(false);
                         if (game.getLevel().isPaused()) {
-                            game.getLevel().resume();
+                            game.setCurrentState(Game.State.Playing);
                             pauseMenuTable.setVisible(false);
                         } else {
-                            game.getLevel().pause();
+                            game.setCurrentState(Game.State.Paused);
                             pauseMenuTable.setVisible(true);
                         }
                     }
@@ -56,7 +59,7 @@ public class LevelUI {
 
         pauseMenuTable = new PauseMenu(stage, skin, game);
 
-        winTable = new WinScreen(stage, skin, game);
+        winTable = new WinScreen(assets, stage, skin, game);
 
         loseTable = new Table();
         {
@@ -72,6 +75,7 @@ public class LevelUI {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         if (game.getLevel() != null) {
+                            game.setCurrentState(Game.State.Playing);
                             game.getLevel().restart();
                             loseTable.setVisible(false);
                         }
@@ -154,7 +158,7 @@ public class LevelUI {
             public synchronized void run() {
                 try {
                     losing = true;
-                    Thread.sleep(1000);
+                    Thread.sleep(300);
                     loseTable.setVisible(true);
                     final float endY = loseTable.getY();
 
@@ -168,11 +172,17 @@ public class LevelUI {
 
                     loseTable.setY(endY);
                     losing = false;
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    // Because I'm too lazy to send the reference of Game to the infinite astronaut level
+    public void backToInfiniteMenu() {
+        game.setCurrentState(Game.State.InfiniteLevelMenu);
     }
 
     public void update() {

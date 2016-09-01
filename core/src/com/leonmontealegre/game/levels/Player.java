@@ -1,6 +1,5 @@
 package com.leonmontealegre.game.levels;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
@@ -8,11 +7,10 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import com.leonmontealegre.game.*;
+import com.leonmontealegre.game.Assets;
+import com.leonmontealegre.game.Options;
 
 public class Player {
-
-    public static final Texture tex = Assets.getTexture("spaceship");
 
     public Sprite sprite;
 
@@ -26,16 +24,16 @@ public class Player {
 
     public boolean shouldDestroy = false;
 
-    public Player(Vector2 startPosition) {
-        sprite = new Sprite(tex);
+    public Player(Assets assets, Vector2 startPosition) {
+        sprite = new Sprite(assets.getTexture("spaceship"));
         sprite.scale(1);
         sprite.translate(startPosition.x, startPosition.y);
 
-        position = new Vector2();
+        position = new Vector2(startPosition);
         velocity = new Vector2();
         mass = 10;
 
-        float width = tex.getWidth(), height = tex.getHeight();
+        float width = sprite.getTexture().getWidth(), height = sprite.getTexture().getHeight();
         polygon = new Polygon(new float[]{5, 0, width-5, 0, width-5, height, 5, height});
         polygon.setOrigin(width / 2, height / 2);
         polygon.scale(1);

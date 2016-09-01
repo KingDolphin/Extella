@@ -17,6 +17,8 @@ import static com.badlogic.gdx.math.MathUtils.random;
 
 public class ParticleSystem {
 
+    private Assets assets;
+
     private String[] particleTypes;
 
     public Vector2 position;
@@ -47,8 +49,9 @@ public class ParticleSystem {
 
     private boolean isPaused;
 
-    public ParticleSystem(String file) {
+    public ParticleSystem(Assets assets, String file) {
         load(file);
+        this.assets = assets;
         position = new Vector2();
         particles = new ArrayList<Particle>();
         deadParticles = new LinkedList<Particle>();
@@ -117,7 +120,7 @@ public class ParticleSystem {
     private void spawnParticle() {
         if (particles.size() < maxParticles) {
             Particle particle = deadParticles.peek() == null ? new Particle() : deadParticles.remove();
-            particle.reset(
+            particle.reset(assets,
                     particleTypes[(int)(random()*particleTypes.length)],
                     new Vector2(position.x+random(minPosition.x, maxPosition.x),
                                 position.y+random(minPosition.y, maxPosition.y)),

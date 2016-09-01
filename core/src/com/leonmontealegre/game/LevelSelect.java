@@ -19,12 +19,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.leonmontealegre.utils.Input;
 import com.leonmontealegre.utils.Key;
-import com.leonmontealegre.utils.Logger;
 
 public class LevelSelect {
 
     private static final int BLUR_AMOUNT = 3;
 
+    private Game game;
     public Stage stage;
     public ScrollPane scrollPane;
 
@@ -39,8 +39,9 @@ public class LevelSelect {
     private int time;
     private Vector3[] positions;
 
-    public LevelSelect(final Skin skin, final Game game) {
-        background = Assets.getTexture("stars");
+    public LevelSelect(final Assets assets, final Skin skin, final Game game) {
+        this.game = game;
+        background = assets.getTexture("stars");
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -68,16 +69,16 @@ public class LevelSelect {
         // Create a new style for the galaxies for custom background image
         TextButton.TextButtonStyle tbStyle = new TextButton.TextButtonStyle();
         tbStyle.font = skin.getFont("default-font"); // set font
-        Texture galaxyTex = Assets.getTexture("galaxy");
+        Texture galaxyTex = assets.getTexture("galaxy");
         tbStyle.up = new TextureRegionDrawable(new TextureRegion(galaxyTex)); // set background
 
         float galaxyW = Gdx.graphics.getWidth() / 8f;
         float galaxyH = galaxyW * galaxyTex.getHeight() / galaxyTex.getWidth();
 
-        buttonGroup.addActor(createButton("Star System\nA", 50, 50, galaxyW, galaxyH, galaxies[0], tbStyle, buttonGroup.getHeight()));
-        buttonGroup.addActor(createButton("Star System\nB", 450, 300, galaxyW, galaxyH, galaxies[1], tbStyle, buttonGroup.getHeight()));
-        buttonGroup.addActor(createButton("Star System\nC", 750, 650, galaxyW, galaxyH, galaxies[2], tbStyle, buttonGroup.getHeight()));
-        buttonGroup.addActor(createButton("Star System\nD", 500, 1000, galaxyW, galaxyH, galaxies[3], tbStyle, buttonGroup.getHeight()));
+        buttonGroup.addActor(createButton("Star System A", 50, 80, galaxyW, galaxyH, galaxies[0], tbStyle, buttonGroup.getHeight()));
+        buttonGroup.addActor(createButton("Star System B", 450, 300, galaxyW, galaxyH, galaxies[1], tbStyle, buttonGroup.getHeight()));
+        buttonGroup.addActor(createButton("Star System C", 750, 650, galaxyW, galaxyH, galaxies[2], tbStyle, buttonGroup.getHeight()));
+        buttonGroup.addActor(createButton("Star System D", 500, 1000, galaxyW, galaxyH, galaxies[3], tbStyle, buttonGroup.getHeight()));
 
         // Create a blank style for ScrollPane so that it has no texture for scroll bars
         scrollPane = new ScrollPane(buttonGroup, new ScrollPane.ScrollPaneStyle());
@@ -102,14 +103,14 @@ public class LevelSelect {
         }
 
         // Create back button
-        ImageButton backButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(Assets.getTexture("backArrow"))));
+        ImageButton backButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(assets.getTexture("backArrow"))));
         backButton.setWidth(Gdx.graphics.getWidth() / 9);
         backButton.setHeight(Gdx.graphics.getHeight() / 9);
         backButton.setPosition(Gdx.graphics.getWidth() - backButton.getWidth() - 15, Gdx.graphics.getHeight() - backButton.getHeight() - 15);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setCurrentState(Game.State.Menu);
+                back();
             }
         });
         stage.addActor(backButton);
@@ -135,13 +136,13 @@ public class LevelSelect {
             }
         });
         button.getLabel().setFontScale(0.5f);
+        button.getLabelCell().padBottom(h+7);
         return button;
     }
 
     public void update() {
-        if (Input.getKey(Key.BACK)) {
-            Logger.log("back");
-        }
+        if (Input.getKey(Key.BACK))
+            back();
 
         camera.position.set(scrollPane.getScrollX()/2f + Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight() - scrollPane.getScrollY()/2f, camera.position.z);
         camera.update();
@@ -173,6 +174,18 @@ public class LevelSelect {
 
         for (Galaxy galaxy : galaxies)
             galaxy.setVisible(false);
+    }
+
+    private void back() {
+        // If a galaxy is open, close it
+        for (Galaxy galaxy : galaxies) {
+            if (galaxy.isVisible()) {
+                galaxy.setVisible(false);
+                return;
+            }
+        }
+        // Otherwise return to menu
+        game.setCurrentState(Game.State.Menu);
     }
 
 }

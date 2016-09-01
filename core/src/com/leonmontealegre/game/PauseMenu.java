@@ -29,7 +29,7 @@ public class PauseMenu extends Table {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (game.getLevel() != null) {
-                        game.getLevel().resume();
+                        game.setCurrentState(Game.State.Playing);
                         PauseMenu.this.setVisible(false);
                     }
                 }
@@ -45,6 +45,7 @@ public class PauseMenu extends Table {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (game.getLevel() != null) {
+                        game.setCurrentState(Game.State.Playing);
                         game.getLevel().restart();
                         PauseMenu.this.setVisible(false);
                     }

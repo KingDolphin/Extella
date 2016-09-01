@@ -14,8 +14,6 @@ import com.leonmontealegre.utils.Touch;
 
 public class Planet {
 
-    protected static Texture tex1 = Assets.getTexture("planet1"), tex2 = Assets.getTexture("planet2");
-
     public Sprite sprite;
 
     protected Level level;
@@ -36,19 +34,19 @@ public class Planet {
     protected boolean wasZooming = false;
     protected boolean wasPanning = false;
 
-    public Planet(Level level, Vector2 position, float radius, float force) {
+    public Planet(Assets assets, Level level, Vector2 position, float radius, float force) {
         this.startPosition = new Vector2(position);
         this.level = level;
         this.radius = radius;
         this.force = force == 0 ? radius*radius / 2500f * 1e6f : force;
 
-        Texture tex = (MathUtils.randomBoolean() ? tex1 : tex2);
+        Texture tex = (MathUtils.randomBoolean() ? assets.getTexture("planet1") : assets.getTexture("planet2"));
         sprite = new Sprite(tex);
         sprite.setScale(2*radius/tex.getWidth(), 2*radius/tex.getHeight());
         sprite.setPosition(position.x, position.y);
         sprite.rotate(360 * MathUtils.random());
 
-        system = new ParticleSystem("particle_systems/PlanetParticleSystem.xml");
+        system = new ParticleSystem(assets, "particle_systems/PlanetParticleSystem.xml");
         system.setSizePerSecond(new Vector2(radius / 75 * system.getSizePerSecond().x, radius / 75 * system.getSizePerSecond().y));
 
         circle = new Circle(position.x + sprite.getWidth()/2, position.y + sprite.getHeight()/2, radius);

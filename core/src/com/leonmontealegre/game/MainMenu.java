@@ -3,78 +3,162 @@ package com.leonmontealegre.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.RotateByAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ScaleByAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ScaleToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.leonmontealegre.utils.Logger;
 import com.leonmontealegre.utils.Utils;
+
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.after;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.forever;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.parallel;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.rotateBy;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.scaleBy;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.scaleTo;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 
 public class MainMenu {
 
     public Stage stage;
-    public Table table, table2, table3, table4;
+    public Table table;
     public Button soundButton;
     private Button optionsButton;
+
+    private Image infiniteLevelImage;
+    private Image levelSelectionImage;
 
     public Texture background;
 
     public Image title;
 
-    public MainMenu(final Skin skin, final Game game) {
+    public MainMenu(final Assets assets, final Skin skin, final Game game) {
         stage = new Stage(new ScreenViewport());
-        background = Assets.getTexture("menuBackground");
+        background = assets.getTexture("menuBackground");
 
-        table = new Table();
+        table = new Table(skin);
         table.pad(15f);
         table.setWidth(stage.getWidth());
-        table.align(Align.center);
+        table.setHeight(stage.getHeight());
+        table.setBackground(new TextureRegionDrawable(new TextureRegion(background)));
+
+        float buttonWidth = Gdx.graphics.getWidth() / 7;
+        float iconSize = Gdx.graphics.getWidth() / 15;
+
+        soundButton = Utils.createCheckButton(assets.getTexture("volumeOn"), assets.getTexture("volumeOff"));
+        soundButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (game.backgroundMusic.isPlaying()) {
+                    game.backgroundMusic.pause();
+                    soundButton.setChecked(true);
+                    game.prefs.putBoolean("soundOn", false);
+                } else {
+                    game.backgroundMusic.play();
+                    soundButton.setChecked(false);
+                    game.prefs.putBoolean("soundOn", true);
+                }
+            }
+        });
+        table.add(soundButton).width(iconSize).height(iconSize).align(Align.left);
+
+        title = new Image(assets.getTexture("logo"));
+        table.add(title).width(2 * buttonWidth).height(iconSize).align(Align.center).colspan(2);
+
+        optionsButton = Utils.createButton(assets.getTexture("optionsButton"));
+        optionsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // do something eventually
+            }
+        });
+        table.add(optionsButton).width(iconSize).height(iconSize).align(Align.right);
+
+        table.row();
+
+        float size = Gdx.graphics.getWidth() / 4.5f;
+
+        final Stack infiniteLevelStack = new Stack();
         {
-            TextButton startButton = new TextButton("Start", skin);
-            startButton.addListener(new ClickListener() {
+            infiniteLevelImage = new Image(assets.getTexture("blackHoleImage"));
+            infiniteLevelImage.setOrigin(size/2, size/2);
+            infiniteLevelStack.add(infiniteLevelImage);
+
+            rotateScaleMove(infiniteLevelImage, false);
+
+            Table overlay = new Table();
+            Button infiniteLevelButton = Utils.createButton(assets.getTexture("playIcon"));
+            infiniteLevelButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    infiniteLevelImage.setZIndex(10);
+                    infiniteLevelStack.setZIndex(10);
+                    float size = Gdx.graphics.getWidth() / infiniteLevelImage.getWidth() * 1.5f;
+                    ScaleByAction fillScreen = scaleBy(size, size, 1f);
+                    infiniteLevelImage.clearActions();
+                    infiniteLevelImage.addAction(fillScreen);
+
+                    infiniteLevelImage.addAction(after(run(new Runnable() {
+                        @Override
+                        public void run() {
+                            Logger.log("hi");
+                            game.setCurrentState(Game.State.InfiniteLevelMenu);
+                        }
+                    })));
+                }
+            });
+            overlay.add(infiniteLevelButton).size(size-50f);
+            infiniteLevelStack.add(overlay);
+        }
+        table.add(infiniteLevelStack).align(Align.right).padRight(65f).width(size).height(size).expand().colspan(2);
+
+        final Stack levelSelectionStack = new Stack();
+        {
+            levelSelectionImage = new Image(assets.getTexture("planet1"));
+            levelSelectionImage.setOrigin(size/2, size/2);
+            levelSelectionStack.add(levelSelectionImage);
+
+            rotateScaleMove(levelSelectionImage, true);
+
+            Table overlay = new Table();
+            Button levelSelectionButton = Utils.createButton(assets.getTexture("levelSelectionIcon"));
+            levelSelectionButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     game.setCurrentState(Game.State.LevelSelect);
                 }
             });
-            startButton.getLabel().setColor(0, 0, 0, 1);
-
-            float buttonWidth = Gdx.graphics.getWidth() / 7;
-            table.add(startButton).width(buttonWidth).height(buttonWidth * 0.4f).pad(5f);
-
-            table.setPosition(0, buttonWidth * 9 / 16);
+            overlay.add(levelSelectionButton).size(size-90f);
+            levelSelectionStack.add(overlay);
         }
+        table.add(levelSelectionStack).align(Align.left).padLeft(65f).width(size).height(size).expand().colspan(2);
+
         stage.addActor(table);
-
-
-        table2 = new Table();
-        table2.pad(45f);
-        table2.setWidth(stage.getWidth());
-        table2.align(Align.top);
+        /*table = new Table(skin);
+        table.pad(15f);
+        table.setWidth(stage.getWidth());
+        table.setHeight(stage.getHeight());
         {
-            float buttonWidth = Gdx.graphics.getWidth() * 2 / 7;
-            title = new Image(Assets.getTexture("logo"));
-            table2.add(title).width(buttonWidth).height(buttonWidth * title.getHeight() / title.getWidth()).align(Align.center);
+            float buttonWidth = Gdx.graphics.getWidth() / 7;
+            float iconWidth = Gdx.graphics.getWidth() / 15;
 
-            table2.setPosition(0, Gdx.graphics.getHeight());
-        }
-        stage.addActor(table2);
-
-
-        table3 = new Table();
-        table3.pad(35f);
-        table3.setWidth(stage.getWidth());
-        table3.align(Align.top | Align.left);
-        {
-            float buttonSize = Gdx.graphics.getWidth() / 15;
-
-            soundButton = Utils.createCheckButton("volumeOn", "volumeOff");
+            soundButton = Utils.createCheckButton(assets.getTexture("volumeOn"), assets.getTexture("volumeOff"));
             soundButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -89,39 +173,39 @@ public class MainMenu {
                     }
                 }
             });
+            table.add(soundButton).width(iconWidth).height(iconWidth).align(Align.left);
 
-            table3.add(soundButton).width(buttonSize).height(buttonSize);
+            title = new Image(assets.getTexture("logo"));
+            table.add(title).width(2 * buttonWidth).height(iconWidth).align(Align.center);
 
-            table3.setPosition(0, Gdx.graphics.getHeight());
-        }
-        stage.addActor(table3);
-
-        table4 = new Table();
-        table4.pad(35f);
-        table4.setWidth(stage.getWidth());
-        table4.align(Align.top | Align.right);
-        {
-            float buttonSize = Gdx.graphics.getWidth() / 15;
-
-            optionsButton = Utils.createButton("optionsButton");
+            optionsButton = Utils.createButton(assets.getTexture("optionsButton"));
             optionsButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     // do something eventually
                 }
             });
+            table.add(optionsButton).width(iconWidth).height(iconWidth).align(Align.right);
 
-            table4.add(optionsButton).width(buttonSize).height(buttonSize);
+            table.row();
+            table.add("").expand().colspan(3);
+            table.row();
 
-            table4.setPosition(0, Gdx.graphics.getHeight());
+            TextButton startButton = new TextButton("Start", skin);
+            startButton.getLabel().setColor(0, 0, 0, 1);
+            startButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    game.setCurrentState(Game.State.LevelSelect);
+
+                }
+            });
+            table.add(startButton).width(buttonWidth).height(buttonWidth * 0.4f).colspan(3);
         }
-        stage.addActor(table4);
+        stage.addActor(table);*/
     }
 
     public void render(SpriteBatch batch) {
-        batch.begin();
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.end();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }
@@ -129,6 +213,22 @@ public class MainMenu {
     public void setVisible(boolean b) {
         for (Actor actor : stage.getActors())
             actor.setVisible(b);
+
+        infiniteLevelImage.setScale(1);
+        infiniteLevelImage.setZIndex(0);
+        infiniteLevelImage.clearActions();
+        rotateScaleMove(infiniteLevelImage, false);
+
+        levelSelectionImage.clearActions();
+        rotateScaleMove(levelSelectionImage, true);
+    }
+
+    private void rotateScaleMove(Actor actor, boolean clockwise) {
+        RotateByAction rotate = rotateBy((clockwise ? -1 : 1) * 360, 20);
+        ScaleToAction scaleActionUp = scaleTo(1.15f, 1.15f, 0.4f, Interpolation.pow2);
+        ScaleToAction scaleActionDown = scaleTo(1, 1, 0.4f, Interpolation.pow2);
+        Action action = parallel(forever(rotate), forever(sequence(scaleActionUp, delay(0.05f), scaleActionDown, delay(0.05f))));
+        actor.addAction(action);
     }
 
 }

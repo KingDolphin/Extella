@@ -14,6 +14,8 @@
     <texture file="textures/UI/levelSelectionIcon.png" key="levelSelectionIcon"/>
     <texture file="textures/UI/replayIcon.png" key="replayIcon"/>
     <texture file="textures/UI/starIcon.png" key="starIcon"/>
+    <texture file="textures/UI/blackHoleImage.png" key="blackHoleImage"/>
+    <texture file="textures/UI/playIcon.png" key="playIcon"/>
 
     <texture file="textures/level_objects/galaxy.png" key="galaxy"/>
     <texture file="textures/level_objects/planetRing.png" key="planetRing"/>

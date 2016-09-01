@@ -8,16 +8,6 @@
         color="145 145 145"
         texture="levelBackground"/>
     <background
-        type="nebula"
-        color="117 0 226"
-        size1="10"
-        size2="4"
-        shiftSpeed="0.0097"
-        flowSpeed="0.013"
-        frameRate="2"
-        intensity="2.65"
-        resolution="14"/>
-    <background
         type="file"
         color="255 255 255"
         texture="stars"/>

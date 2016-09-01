@@ -14,6 +14,7 @@ import com.leonmontealegre.game.Explosion;
 import com.leonmontealegre.game.Galaxy;
 import com.leonmontealegre.game.LevelUI;
 import com.leonmontealegre.game.Options;
+import com.leonmontealegre.game.levels.cutscenes.Cutscene;
 import com.leonmontealegre.utils.Input;
 import com.leonmontealegre.utils.Logger;
 import com.leonmontealegre.utils.Touch;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 public class Level {
 
     public static final int TIME_SCALE = 1;
+
+    protected Assets assets;
 
     public Player player;
 
@@ -34,8 +37,8 @@ public class Level {
 
     protected OrthographicCamera camera;
 
-    private Vector2 startPos;
-    private float startZoom;
+    protected Vector2 startPos;
+    protected float startZoom;
     private boolean displayHelp = false;
 
     public boolean hasWon = false;
@@ -50,10 +53,13 @@ public class Level {
 
     protected Background[] backgrounds;
 
+    protected Cutscene cutscene;
+
     public int time = 0;
     public boolean deathAfterWin = false;
 
-    public Level(Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
+    public Level(Assets assets, Galaxy galaxy, int x, int y, LevelUI ui, OrthographicCamera camera, XmlReader.Element root) {
+        this.assets = assets;
         this.galaxy = galaxy;
         this.x = x;
         this.y = y;
@@ -66,7 +72,8 @@ public class Level {
 
         BlackHole.shader.begin();
         BlackHole.shader.setUniformf("screenSize", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        load(root);
+        if (root != null)
+            load(root);
         for (int i = BlackHole.count; i < BlackHole.MAX_BLACK_HOLES; i++) {
             BlackHole.shader.setUniformf("blackHole[" + i + "].radius", 0);
             BlackHole.shader.setUniformf("blackHole[" + i + "].deformRadius", 0);
@@ -81,22 +88,24 @@ public class Level {
         deathAfterWin = false;
         hasWon = false;
         paused = false;
-        player = new Player(startPos);
+        player = new Player(assets, startPos);
         ui.helpOverlay.setVisible(displayHelp);
-        camera.zoom = startZoom;
         for (int i = 0; i < planets.size(); i++) {
             Planet p = planets.get(i);
-            planets.set(i, new Planet(this, p.startPosition, p.radius, p.force));
+            planets.set(i, new Planet(assets, this, p.startPosition, p.radius, p.force));
         }
         for (int i = 0; i < debris.size(); i++) {
             Debris d = debris.get(i);
-            debris.set(i, new Debris(this, new Vector2(d.sprite.getX(), d.sprite.getY()), d.radius));
+            debris.set(i, new Debris(assets, this, new Vector2(d.sprite.getX(), d.sprite.getY()), d.radius));
         }
         for (int i = 0; i < blackHoles.size(); i++) {
             blackHoles.get(i).isOn = false;
         }
 
         explosion = null;
+
+        if (cutscene != null)
+            cutscene.restart();
     }
 
     public Vector2 unproject(Vector2 coords) {
@@ -127,12 +136,12 @@ public class Level {
                 float width = player.sprite.getScaleX() * player.sprite.getWidth();
                 float height = player.sprite.getScaleY() * player.sprite.getHeight();
                 float size = Math.max(width, height);
-                explosion = new Explosion(new Vector2(player.position).sub(size, size),
+                explosion = new Explosion(assets, new Vector2(player.position).sub(size, size),
                         new Vector2(2 * size, 2 * size));
                 player = null;
 
                 if (!hasWon)
-                    ui.showLoseScreen();
+                    lose();
                 else
                     deathAfterWin = true;
             }
@@ -149,6 +158,10 @@ public class Level {
 
         for (Background background : backgrounds)
             background.update();
+    }
+
+    protected void lose() {
+        ui.showLoseScreen();
     }
 
     public void win() {
@@ -226,6 +239,10 @@ public class Level {
             bg.dispose();
     }
 
+    public boolean hasStarted() {
+        return (cutscene == null || cutscene.isFinished());
+    }
+
     protected void load(XmlReader.Element root) {
         displayHelp = root.getBoolean("displayTutorial", false);
         ui.helpOverlay.setVisible(displayHelp);
@@ -250,26 +267,16 @@ public class Level {
             if (type.equals("file")) {
                 String texture = background.get("texture").trim();
 
-                this.backgrounds[i] = new Background(Assets.getTexture(texture), color);
-            } else if (type.equals("nebula")) {
-                float size1 = background.getFloat("size1");
-                float size2 = background.getFloat("size2");
-                float shiftSpeed = background.getFloat("shiftSpeed");
-                float flowSpeed = background.getFloat("flowSpeed");
-                int frameRate = background.getInt("frameRate", 4);
-                float intensity = background.getFloat("intensity");
-                int resolution = background.getInt("resolution", 6);
-
-                this.backgrounds[i] = new NebulaBackground(color, size1, size2, shiftSpeed, flowSpeed, frameRate, intensity, resolution);
+                this.backgrounds[i] = new Background(assets.getTexture(texture), color);
             } else if (type.equals("dynamic")) {
                 String texture = background.get("texture").trim();
 
-                this.backgrounds[i] = new DynamicSpaceBackground(Assets.getTexture(texture), color);
+                this.backgrounds[i] = new DynamicSpaceBackground(assets.getTexture(texture), color);
             }
         }
 
         XmlReader.Element player = root.getChildByName("player");
-        this.player = new Player(new Vector2(player.getInt("x"), player.getInt("y")));
+        this.player = new Player(assets, new Vector2(player.getInt("x"), player.getInt("y")));
         this.startPos = new Vector2(this.player.position);
 
         Array<XmlReader.Element> planets = root.getChildrenByName("planet");
@@ -277,14 +284,14 @@ public class Level {
             Vector2 position = new Vector2(planet.getInt("x"), planet.getInt("y"));
             int radius = planet.getInt("radius");
             float force = planet.getFloat("force", 0.0f);
-            this.planets.add(new Planet(this, position, radius, force));
+            this.planets.add(new Planet(assets, this, position, radius, force));
         }
 
         Array<XmlReader.Element> debris = root.getChildrenByName("debris");
         for (XmlReader.Element d : debris) {
             Vector2 position = new Vector2(d.getInt("x"), d.getInt("y"));
             int radius = d.getInt("radius");
-            this.debris.add(new Debris(this, position, radius));
+            this.debris.add(new Debris(assets, this, position, radius));
         }
 
         Array<XmlReader.Element> blackHoles = root.getChildrenByName("black_hole");
@@ -292,7 +299,16 @@ public class Level {
             Vector2 position = new Vector2(blackHole.getInt("x"), blackHole.getInt("y"));
             int radius = blackHole.getInt("radius");
             int deformRadius = blackHole.getInt("deform_radius");
-            this.blackHoles.add(new BlackHole(this, position, radius, deformRadius));
+            this.blackHoles.add(new BlackHole(assets, this, position, radius, deformRadius));
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            Logger.log("Garbage collecting the level...");
+        } finally {
+            super.finalize();
         }
     }
 

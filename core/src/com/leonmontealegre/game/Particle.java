@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class Particle {
 
-    public static final Map<String, Texture[]> PARTICLE_MAP = new HashMap<String, Texture[]>();
+    public static final Map<String, String[]> PARTICLE_MAP = new HashMap<String, String[]>();
 
     public String name;
 
@@ -28,17 +28,17 @@ public class Particle {
 
     public Particle() {}
 
-    public Particle(String name, Vector2 position, Vector2 velocity, Vector2 size, float startTime, float life, float rotation) {
-        this.reset(name, position, velocity, size, startTime, life, rotation);
+    public Particle(Assets assets, String name, Vector2 position, Vector2 velocity, Vector2 size, float startTime, float life, float rotation) {
+        this.reset(assets, name, position, velocity, size, startTime, life, rotation);
     }
 
     public void update() {
         this.position.add(velocity);
     }
 
-    public void reset(String name, Vector2 position, Vector2 velocity, Vector2 size, float startTime, float life, float rotation) {
+    public void reset(Assets assets, String name, Vector2 position, Vector2 velocity, Vector2 size, float startTime, float life, float rotation) {
         this.name = name;
-        this.texture = PARTICLE_MAP.get(name)[(int)(MathUtils.random()*PARTICLE_MAP.get(name).length)];
+        this.texture = assets.getTexture(PARTICLE_MAP.get(name)[(int)(MathUtils.random()*PARTICLE_MAP.get(name).length)]);
         this.position = new Vector2(position);
 
         this.velocity = velocity;
@@ -57,10 +57,10 @@ public class Particle {
 
             XmlReader.Element textures = root.getChildByName("textures");
             Array<XmlReader.Element> files = textures.getChildrenByName("texture");
-            Texture[] texs = new Texture[files.size];
+            String[] texs = new String[files.size];
 
             for (int i = 0; i < files.size; i++)
-                texs[i] = Assets.getTexture(files.get(i).getText().trim());
+                texs[i] = files.get(i).getText().trim();
 
             PARTICLE_MAP.put(name, texs);
         } catch (IOException e) {

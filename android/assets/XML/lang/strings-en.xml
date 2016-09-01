@@ -1,5 +1,6 @@
 <strings>
-    <astronauts_remaining_text>Astronauts remaining : </astronauts_remaining_text>
+    <astronauts_remaining_text>Astronauts Remaining : </astronauts_remaining_text>
+    <astronauts_collected_text>Astronauts Collected : </astronauts_collected_text>
     <win_text>You win!</win_text>
     <tutorial_text_0>Click the planets\nto turn their gravity\non and off and try\nto make it to\nthe finish line</tutorial_text_0>
     <level_complete_text>Level Complete!</level_complete_text>
